@@ -43,11 +43,11 @@ interface subGrupo {
     DatePicker,
     InputText,
   ],
-  templateUrl: './consultar-documento.component.html',
+  templateUrl: './perguntas-form.component.html',
   standalone: true,
-  styleUrl: './consultar-documento.component.scss'
+  styleUrl: './perguntas-form.component.scss'
 })
-export class ConsultarDocumentoComponent implements OnInit{
+export class PerguntasFormComponent implements OnInit{
   resultado = false;
   cdEv: string = '';
   rangeDates: Date[] | undefined;

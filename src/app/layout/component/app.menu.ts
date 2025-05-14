@@ -31,7 +31,7 @@ export class AppMenu {
                     routerLink: ['/']
                   },
                     {
-                        label: 'Documento',
+                        label: 'Perguntas',
                         icon: 'bi bi-file-earmark-medical',
                         items: [
                             {
