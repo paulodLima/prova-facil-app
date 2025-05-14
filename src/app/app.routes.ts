@@ -11,5 +11,6 @@ export const routes: Routes = [
       { path: 'perguntas', component:  PerguntasFormComponent},
     ]
   },
+  { path: 'auth', loadChildren: () => import('./pages/auth/auth.routes') },
   { path: '**', redirectTo: '/notfound' }
 ];

@@ -56,7 +56,7 @@ export class AppMenu {
                         icon: 'bi bi-cash-coin',
                       items: [
                         {
-                          label: 'Calculo de Rentabilidade',
+                          label: 'Login',
                           icon: 'bi bi-calculator',
                           routerLink: ['/auth/login']
                         },
