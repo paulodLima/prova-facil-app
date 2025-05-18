@@ -4,3 +4,7 @@
 @use 'primeicons/primeicons.css';
 @use './assets/demo/demo.scss';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
+
+label {
+  font-size: 13px; /* ou 16px, 1rem, etc */
+}

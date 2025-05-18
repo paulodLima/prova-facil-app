@@ -1,19 +1,24 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import {Router, RouterModule} from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
+import {LoginService} from './service/login.service';
+import {MessageService} from 'primeng/api';
+import {LoginRequest, PostProfessorRequest} from './interface/login.interface';
+import {Toast} from 'primeng/toast';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator],
+  imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, Toast],
     template: `
         <app-floating-configurator />
+        <p-toast></p-toast>
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
             <div class="flex flex-col items-center justify-center">
                 <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
@@ -33,12 +38,18 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
 
                             <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                                 <div class="flex items-center">
-                                    <p-checkbox [(ngModel)]="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
-                                    <label for="rememberme1">Lembrar me</label>
+                                   <!-- <p-checkbox [(ngModel)]="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
+                                    <label for="rememberme1">Lembrar me</label>-->
+                                  <a
+                                    class="font-medium no-underline ml-2 text-right cursor-pointer text-primary"
+                                    routerLink="/auth/criar-conta">
+                                    Criar Conta
+                                  </a>
+
                                 </div>
                                 <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Esqueceu a senha?</span>
                             </div>
-                            <p-button label="Entrar" styleClass="w-full" routerLink="/"></p-button>
+                            <p-button label="Entrar" styleClass="w-full" (onClick)="login()"></p-button>
                         </div>
                     </div>
                 </div>
@@ -48,8 +59,28 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
 })
 export class Login {
     email: string = '';
-
     password: string = '';
 
-    checked: boolean = false;
+  constructor(private loginService: LoginService,private messageService: MessageService,private router: Router) {
+  }
+
+  login(): void {
+    const request: LoginRequest = {
+      email: this.email,
+      password: this.password,
+    };
+
+    this.loginService.loginProfessor(request).subscribe({
+      next: response => {
+        this.router.navigate(['/inicio'])
+      },
+      error: err => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: "Nome de usuário ou senha incorreta."
+        });
+      }
+    });
+  }
 }

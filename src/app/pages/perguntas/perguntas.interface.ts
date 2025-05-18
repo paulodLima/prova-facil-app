@@ -12,7 +12,47 @@ export interface ValidacaoInclusaoResponse {
   tipoEventos: TipoEventoDetailsDTO[];
 }
 
-export interface PlanosDTO {
-  sqPlano: number;
-  sgPlano: string;
+export interface SerieResponse {
+  nome: string;
+}
+
+export interface AssuntoResponse {
+  nome: string;
+}
+
+export interface ProfessorResponse {
+  nome: string;
+  email: string;
+  senha: string;
+  roles: string[];
+}
+
+export interface AlternativaErradaResponse {
+  texto: string;
+}
+
+export interface PerguntaResponse {
+  id: number;
+  enunciado: string;
+  tipo: string;
+  respostaCorreta: string;
+  serie: SerieResponse;
+  assunto: AssuntoResponse;
+  professor: ProfessorResponse;
+  dataCriacao: Date;
+  alternativasErradas: AlternativaErradaResponse[];
+}
+
+export interface Page<T> {
+  content: T[];
+  pageable: any;
+  last: boolean;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  numberOfElements: number;
+  size: number;
+  number: number;
+  sort: any;
+  empty: boolean;
 }

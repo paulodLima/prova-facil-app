@@ -28,21 +28,21 @@ export class AppMenu {
                   {
                     label: 'Inicio',
                     icon: 'pi pi-fw pi-home',
-                    routerLink: ['/']
+                    routerLink: ['/inicio']
                   },
                     {
                         label: 'Perguntas',
                         icon: 'bi bi-file-earmark-medical',
                         items: [
                             {
-                                label: 'Consultar Documentos',
+                                label: 'Consultar perguntas',
                                 icon: 'bi bi-search',
-                                routerLink: ['/consultar-documentos']
+                                routerLink: ['/inicio/perguntas']
                             },
                             {
-                                label: 'Criar Documentos',
+                                label: 'Cadastrar Pergunta',
                                 icon: 'bi bi-clipboard-plus',
-                                routerLink: ['/auth/error']
+                                routerLink: ['/inicio/perguntas/novo']
                             },
                             {
                                 label: 'Cancelar Documentos',
@@ -52,7 +52,7 @@ export class AppMenu {
                         ]
                     },
                     {
-                        label: 'Rentabilidade',
+                        label: 'Série',
                         icon: 'bi bi-cash-coin',
                       items: [
                         {
@@ -84,7 +84,7 @@ export class AppMenu {
                       ]
                     },
                     {
-                        label: 'Gestão de Banco',
+                        label: 'Assunto',
                         icon: 'bi bi-bank',
                         routerLink: ['/pages/notfound']
                     },

@@ -1,8 +1,10 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpResponse} from "@angular/common/http";
+import {HttpClient, HttpHeaders, HttpResponse} from "@angular/common/http";
 import {Observable, take} from "rxjs";
 import {
-  PlanosDTO,
+  Page,
+  PerguntaResponse,
+  SerieResponse,
   ValidacaoInclusaoResponse
 } from "./perguntas.interface";
 import {environment} from '../../../environments/environment';
@@ -12,7 +14,7 @@ import {environment} from '../../../environments/environment';
 })
 
 export class PerguntasService {
-  private url = environment.url.concat('inclusao-documento');
+  private url = environment.url;
 
   constructor(private http: HttpClient) {
   }
@@ -21,11 +23,20 @@ export class PerguntasService {
     return this.http.get<ValidacaoInclusaoResponse>(`${this.url}/validar-inclusao/${cdCentrus}`);
   }
 
-  validarTipoEvento(tpEv: number | undefined) {
-    return this.http.get<string>(`${this.url}/validar-tipo-evento/${tpEv}`);
+  getPeguntas():Observable<Page<PerguntaResponse>> {
+    return this.http.get<Page<PerguntaResponse>>(`${this.url}/api/perguntas`,{headers: this.getHeaders()});
   }
 
-  planos() {
-    return this.http.get<PlanosDTO[]>(`${this.url}/planos`);
+  getSeries() :Observable<SerieResponse[]> {
+    return this.http.get<SerieResponse[]>(`${this.url}/api/serie`,{headers: this.getHeaders()});
+  }
+
+  getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('jwt_token');
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    });
   }
 }

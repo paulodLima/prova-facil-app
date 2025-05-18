@@ -6,7 +6,11 @@ export const perguntasRoutes: Routes = [
     loadComponent: () => import('./perguntas-list/perguntas-list.component').then((m) => m.PerguntasListComponent)
   },
   {
-    path: '/novo',
+    path: 'novo',
+    loadComponent: () => import('./perguntas-form/perguntas-form.component').then((m) => m.PerguntasFormComponent)
+  },
+  {
+    path: 'editar',
     loadComponent: () => import('./perguntas-form/perguntas-form.component').then((m) => m.PerguntasFormComponent)
   }
 ];

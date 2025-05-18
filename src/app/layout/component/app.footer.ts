@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
     standalone: true,
     selector: 'app-footer',
     template: `<div class="layout-footer">
-        <a rel="noopener noreferrer" class="text-blue-600 font-bold hover:underline">Desenvolvido pela GEINF</a>
+        <a rel="noopener noreferrer" class="text-blue-600 font-bold hover:underline"><p>© 2025 Prova Fácil. Todos os direitos reservados.</p></a>
     </div>`
 })
 export class AppFooter {}

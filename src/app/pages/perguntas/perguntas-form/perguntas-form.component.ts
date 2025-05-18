@@ -6,11 +6,15 @@ import {FormsModule} from '@angular/forms';
 import {Textarea} from 'primeng/textarea';
 import {DropdownModule} from 'primeng/dropdown';
 import {InputNumber} from 'primeng/inputnumber';
-import {Button} from 'primeng/button';
+import {Button, ButtonDirective} from 'primeng/button';
 import {Panel} from 'primeng/panel';
-import {NgIf, NgOptimizedImage} from '@angular/common';
+import {NgForOf, NgIf, NgOptimizedImage} from '@angular/common';
 import {Calendar} from 'primeng/calendar';
 import {DatePicker} from 'primeng/datepicker';
+import {PerguntasService} from '../perguntas.service';
+import {Page, PerguntaResponse, SerieResponse} from '../perguntas.interface';
+import {SelectButton} from 'primeng/selectbutton';
+import {Chips} from 'primeng/chips';
 
 interface situacaoDocumento {
   situacao: number,
@@ -40,8 +44,11 @@ interface subGrupo {
     DropdownModule,
     Button,
     Panel,
-    DatePicker,
     InputText,
+    SelectButton,
+    Textarea,
+    ButtonDirective,
+    NgForOf,
   ],
   templateUrl: './perguntas-form.component.html',
   standalone: true,
@@ -57,9 +64,17 @@ export class PerguntasFormComponent implements OnInit{
   subGrupos: subGrupo[] = [];
   supraHistorico: subGrupo[] = [];
   tipoDocumento: tipoDocumento[] = [];
+  seriesResponse: SerieResponse[] = [];
   selectTipoDocumento: tipoDocumento | undefined;
+  stateOptions: any[] = [{ label: 'Múltipla escolha', value: '1' },{ label: 'Dissertativa', value: '2' }];
+  respostasIncorretas: string[] = [];
 
+  value: string = 'off';
+
+  constructor(private perguntasService: PerguntasService) {
+  }
   ngOnInit(): void {
+    this.getSeries()
     this.situacaoDocumento = [
       {situacao: 1, descricao: 'Gerado'},
       {situacao: 3, descricao: 'Liquidado'},
@@ -104,5 +119,24 @@ export class PerguntasFormComponent implements OnInit{
       {codigo: 1, descricao: 'Beneficio'},
       {codigo: 2, descricao: 'Contribuicao'},
     ]
+  }
+
+  private getSeries() {
+    this.perguntasService.getSeries().subscribe({
+      next: response => {
+        this.seriesResponse = response
+      },
+      error: err => {
+        console.log(err)
+      }
+    });
+  }
+
+  adicionarResposta() {
+    this.respostasIncorretas.push('');
+  }
+
+  removerResposta(index: number) {
+    this.respostasIncorretas.splice(index, 1);
   }
 }

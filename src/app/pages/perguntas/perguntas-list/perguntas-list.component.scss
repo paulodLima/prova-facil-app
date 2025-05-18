@@ -1,0 +1,10 @@
+.ui-tooltip {
+  max-width: 400px !important; /* Aumente conforme quiser */
+  white-space: normal !important; /* Permite quebra de linha */
+  word-wrap: break-word;
+}
+.meu-tooltip-longo {
+  max-width: 400px;
+  white-space: normal;
+  word-wrap: break-word;
+}
