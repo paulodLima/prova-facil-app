@@ -1,21 +1,52 @@
-  <p-panel header="Consultar teste" class="text-center sm:text-left">
-    <div>
-      <p-table
-        [value]="perguntas"
-        [paginator]="true"
-        [rows]="page?.size || 5"
-        [totalRecords]="page?.totalElements || 0"
-        [first]="(page?.number ?? 0) * (page?.size ?? 5)"
-        responsiveLayout="scroll">
+<p-toast/>
+<p-confirmDialog/>
+<p-panel header="Consultar teste" class="text-center sm:text-left">
+  <div>
+    <p-table
+      #dt
+      [value]="perguntas"
+      [paginator]="true"
+      [globalFilterFields]="['enunciado','assunto.nome','respostaCorreta']"
+      [rows]="page?.size || 5"
+      [totalRecords]="page?.totalElements || 0"
+      [rowsPerPageOptions]="[10, 20, 30]"
+      [first]="(page?.number ?? 0) * (page?.size ?? 5)"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+      responsiveLayout="scroll">
+      <ng-template pTemplate="caption">
+        <div class="flex">
+          <div class="d-flex align-items-center">
+              <span class="p-input-icon-left">
+                <input
+                  pInputText
+                  type="text"
+                  (input)="onFilterInputChange($event)"
+                  placeholder="Pesquisar..."
+                />
+              </span>
+          </div>
+        </div>
+      </ng-template>
       <ng-template pTemplate="header">
         <tr>
           <th>#</th>
-          <th>Enunciado</th>
-          <th>Tipo</th>
-          <th>Série</th>
-          <th>Assunto</th>
+          <th pSortableColumn="enunciado">Enunciado
+            <p-sortIcon field="enunciado" class="floatin"/>
+          </th>
+          <th pSortableColumn="tipo">Tipo
+            <p-sortIcon field="tipo" class="floatin"/>
+          </th>
+          <th pSortableColumn="serie.nome">Série
+            <p-sortIcon field="serie" class="floatin"/>
+          </th>
+          <th pSortableColumn="assunto.nome">Assunto
+            <p-sortIcon field="assunto" class="floatin"/>
+          </th>
           <th>Professor</th>
-          <th>Criada em</th>
+          <th pSortableColumn="dataCriacao">Criada em
+            <p-sortIcon field="criado" class="floatin"/>
+          </th>
           <th>Ações</th>
         </tr>
       </ng-template>
@@ -34,39 +65,42 @@
           <td>{{ pergunta.professor.nome }}</td>
           <td>{{ pergunta.dataCriacao | date: 'dd/MM/yyyy' }}</td>
           <td>
-            <button pButton icon="pi pi-eye"  [outlined]="true" class="p-button-rounded p-button-info p-button-sm mr-1" (click)="visualizar(pergunta)"></button>
-            <button pButton icon="pi pi-pencil" [outlined]="true" class="p-button-rounded p-button-warning p-button-sm mr-1" (click)="editar(pergunta)"></button>
-            <button pButton icon="pi pi-trash" [outlined]="true" class="p-button-rounded p-button-danger p-button-sm" (click)="excluir(pergunta)"></button>
+            <button pButton icon="pi pi-eye" [outlined]="true" class="p-button-rounded p-button-info p-button-sm mr-1"
+                    (click)="visualizar(pergunta)"></button>
+            <button pButton icon="pi pi-pencil" [outlined]="true"
+                    class="p-button-rounded p-button-warning p-button-sm mr-1" (click)="editar(pergunta)"></button>
+            <button pButton icon="pi pi-trash" [outlined]="true" class="p-button-rounded p-button-danger p-button-sm"
+                    (click)="excluir(pergunta)"></button>
           </td>
         </tr>
       </ng-template>
     </p-table>
-    </div>
-    <p-dialog
-      header="Detalhes da Pergunta"
-      [(visible)]="modalVisivel"
-      [modal]="true"
-      [style]="{ width: '600px' }"
-      [closable]="true"
-      [dismissableMask]="true"
-    >
-      <div *ngIf="perguntaSelecionada">
-        <p><strong>Enunciado:</strong></p>
-        <p>{{ perguntaSelecionada.enunciado }}</p>
+  </div>
+  <p-dialog
+    header="Detalhes da Pergunta"
+    [(visible)]="modalVisivel"
+    [modal]="true"
+    [style]="{ width: '600px' }"
+    [closable]="true"
+    [dismissableMask]="true"
+  >
+    <div *ngIf="perguntaSelecionada">
+      <p><strong>Enunciado:</strong></p>
+      <p>{{ perguntaSelecionada.enunciado }}</p>
 
-        <p style="color: green;">
-          <strong>✔ Resposta Correta:</strong>
-        </p>
-        <p style="color: green;">{{ perguntaSelecionada.respostaCorreta }}</p>
-        <div>
-          <strong style="color: red;">✖ Alternativas Erradas:</strong>
-          <ul class="mt-2">
-            <li *ngFor="let errada of perguntaSelecionada.alternativasErradas" style="color: red;">
-              {{ errada.texto }}<br><br>
-            </li>
-          </ul>
-        </div>
+      <p style="color: green;">
+        <strong>✔ Resposta Correta:</strong>
+      </p>
+      <p style="color: green;">{{ perguntaSelecionada.respostaCorreta }}</p>
+      <div>
+        <strong style="color: red;">✖ Alternativas Erradas:</strong>
+        <ul class="mt-2">
+          <li *ngFor="let errada of perguntaSelecionada.alternativasErradas" style="color: red;">
+            {{ errada.texto }}<br><br>
+          </li>
+        </ul>
       </div>
-    </p-dialog>
+    </div>
+  </p-dialog>
 
-  </p-panel>
+</p-panel>

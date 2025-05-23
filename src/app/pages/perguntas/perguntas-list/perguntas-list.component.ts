@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {FloatLabel} from 'primeng/floatlabel';
 import {InputText} from 'primeng/inputtext';
 import {Select} from 'primeng/select';
@@ -7,13 +7,16 @@ import {DropdownModule} from 'primeng/dropdown';
 import {Button, ButtonDirective} from 'primeng/button';
 import {Panel} from 'primeng/panel';
 import {DatePicker} from 'primeng/datepicker';
-import {TableModule} from 'primeng/table';
+import {Table, TableModule} from 'primeng/table';
 import {Tooltip} from 'primeng/tooltip';
 import {DatePipe, NgForOf, NgIf, SlicePipe} from '@angular/common';
 import {Page, PerguntaResponse} from '../perguntas.interface';
 import {Dialog} from 'primeng/dialog';
 import {PerguntasService} from '../perguntas.service';
 import {Route, Router} from '@angular/router';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {Toast} from 'primeng/toast';
+import {ConfirmDialog} from 'primeng/confirmdialog';
 
 interface situacaoDocumento {
   situacao: number,
@@ -49,25 +52,20 @@ interface subGrupo {
     Dialog,
     NgForOf,
     NgIf,
+    Toast,
+    ConfirmDialog,
+    InputText,
   ],
+  providers:[ConfirmationService,MessageService],
   templateUrl: './perguntas-list.component.html',
   standalone: true,
   styleUrl: './perguntas-list.component.scss'
 })
-export class PerguntasListComponent implements OnInit{
-  resultado = false;
-  cdEv: string = '';
-  rangeDates: Date[] | undefined;
-  situacaoDocumento: situacaoDocumento[] = [];
-  selectSituacaoDocumento: situacaoDocumento | undefined;
-  grupos: grupo[] = [];
-  subGrupos: subGrupo[] = [];
-  supraHistorico: subGrupo[] = [];
-  tipoDocumento: tipoDocumento[] = [];
-  selectTipoDocumento: tipoDocumento | undefined;
+export class PerguntasListComponent implements OnInit {
   page: Page<PerguntaResponse> | null = null;
   perguntas: PerguntaResponse[] = [];
-  constructor(private perguntasService: PerguntasService, private route: Router) {
+  @ViewChild('dt') dt: Table | undefined;
+  constructor(private perguntasService: PerguntasService, private route: Router, private confirmationService: ConfirmationService,private messageService: MessageService,private router: Router,) {
   }
 
   ngOnInit(): void {
@@ -75,51 +73,6 @@ export class PerguntasListComponent implements OnInit{
       this.page = page;
       this.perguntas = this.page.content ?? [];
     });
-
-    this.situacaoDocumento = [
-      {situacao: 1, descricao: 'Gerado'},
-      {situacao: 3, descricao: 'Liquidado'},
-      {situacao: 5, descricao: 'Cancelado'},
-      {situacao: 7, descricao: 'Liberado p/ contabilização'},
-      {situacao: 9, descricao: 'Contabilizado'},
-      {situacao: 11, descricao: 'Estornado'},
-      {situacao: 13, descricao: 'Previsto'},
-      {situacao: 15, descricao: 'Cancelado para contabilização'},
-      {situacao: 99, descricao: 'Todos'},
-    ]
-
-    this.tipoDocumento = [
-      {codigo: 1, nome: 'Controle de Aplicações Financeiras'},
-      {codigo: 3, nome: 'Autorização de Recebimento'},
-      {codigo: 5, nome: 'Autorização de Pagamento'},
-      {codigo: 7, nome: 'Autorização Contabil'},
-      {codigo: 9, nome: 'Autorização de Transferência'},
-    ]
-
-    this.grupos = [
-      {codigo: 1, descricao: 'Previdencial'},
-      {codigo: 2, descricao: 'Assistencial'},
-      {codigo: 3, descricao: 'Administrativo'},
-      {codigo: 4, descricao: 'Investimento'},
-      {codigo: 5, descricao: 'Permanente'},
-    ]
-
-    this.supraHistorico = [
-      {codigo: 90, descricao: 'Aposentadoria'},
-      {codigo: 91, descricao: 'Pensão'},
-      {codigo: 92, descricao: 'Peculio'},
-      {codigo: 93, descricao: 'Poupança'},
-      {codigo: 94, descricao: 'Auxilio'},
-      {codigo: 95, descricao: 'Abono de Natal'},
-      {codigo: 96, descricao: 'Contribuição - PREVI'},
-      {codigo: 97, descricao: 'Idenização Trabalhista'},
-      {codigo: 102, descricao: 'Beneficios'},
-    ]
-
-    this.subGrupos = [
-      {codigo: 1, descricao: 'Beneficio'},
-      {codigo: 2, descricao: 'Contribuicao'},
-    ]
   }
 
   modalVisivel: boolean = false;
@@ -131,10 +84,45 @@ export class PerguntasListComponent implements OnInit{
   }
 
   editar(pergunta: any) {
-    this.route.navigate(['/inicio/perguntas/editar'])
+    this.route.navigate([`/inicio/perguntas/${pergunta.id}`]);
   }
 
   excluir(pergunta: any) {
+    this.confirmationService.confirm({
+      message: 'Ao continuar, não será mais possivel recuperar a pergunta. Deseja confirmar?',
+      header: 'Confirmação',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass: "p-button-text",
+      acceptLabel:"Confirmar",
+      rejectButtonStyleClass: "p-button-danger p-button-text mr-4",
+      rejectLabel:"Cancelar",
+      acceptIcon: "none",
+      rejectIcon: "none",
+      accept: () => {
+        this.perguntasService.excluirPergunta(pergunta.id).subscribe({
+          next: response => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Sucesso',
+              detail: 'excluída com sucesso.',
+            });
+            this.ngOnInit();
+          },
+          error: (err: any) => {
+            console.log(err)
+          }
+        })
+      },
+      reject: () => {
+        this.messageService.add({severity: 'error', summary: 'Cancelar', detail: 'Você cancelou a exclusão'});
+      }
+    });
+  }
 
+  onFilterInputChange(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    if (this.dt) {
+      this.dt.filterGlobal(inputElement.value, 'contains');
+    }
   }
 }

@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {FloatLabel} from 'primeng/floatlabel';
 import {InputText} from 'primeng/inputtext';
 import {Select} from 'primeng/select';
-import {FormsModule} from '@angular/forms';
+import {FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Textarea} from 'primeng/textarea';
 import {DropdownModule} from 'primeng/dropdown';
 import {InputNumber} from 'primeng/inputnumber';
@@ -10,31 +10,19 @@ import {Button, ButtonDirective} from 'primeng/button';
 import {Panel} from 'primeng/panel';
 import {NgForOf, NgIf, NgOptimizedImage} from '@angular/common';
 import {Calendar} from 'primeng/calendar';
-import {DatePicker} from 'primeng/datepicker';
 import {PerguntasService} from '../perguntas.service';
-import {Page, PerguntaResponse, SerieResponse} from '../perguntas.interface';
+import {
+  AlternativaErradaResponse,
+  AssuntoResponse,
+  PerguntasResponse, PostPerguntaRequest,
+  SerieResponse
+} from '../perguntas.interface';
 import {SelectButton} from 'primeng/selectbutton';
 import {Chips} from 'primeng/chips';
-
-interface situacaoDocumento {
-  situacao: number,
-  descricao: string
-}
-
-interface tipoDocumento {
-  codigo: number,
-  nome: string
-}
-
-interface grupo {
-  codigo: number,
-  descricao: string
-}
-
-interface subGrupo {
-  codigo: number,
-  descricao: string
-}
+import {ActivatedRoute, Router} from '@angular/router';
+import {MessageService} from 'primeng/api';
+import {Message} from 'primeng/message';
+import {Toast} from 'primeng/toast';
 
 @Component({
   selector: 'app-perguntas-form',
@@ -49,76 +37,71 @@ interface subGrupo {
     Textarea,
     ButtonDirective,
     NgForOf,
+    ReactiveFormsModule,
+    NgIf,
+    Toast,
   ],
+  providers: [MessageService],
   templateUrl: './perguntas-form.component.html',
   standalone: true,
   styleUrl: './perguntas-form.component.scss'
 })
-export class PerguntasFormComponent implements OnInit{
-  resultado = false;
-  cdEv: string = '';
-  rangeDates: Date[] | undefined;
-  situacaoDocumento: situacaoDocumento[] = [];
-  selectSituacaoDocumento: situacaoDocumento | undefined;
-  grupos: grupo[] = [];
-  subGrupos: subGrupo[] = [];
-  supraHistorico: subGrupo[] = [];
-  tipoDocumento: tipoDocumento[] = [];
+export class PerguntasFormComponent implements OnInit {
   seriesResponse: SerieResponse[] = [];
-  selectTipoDocumento: tipoDocumento | undefined;
-  stateOptions: any[] = [{ label: 'Múltipla escolha', value: '1' },{ label: 'Dissertativa', value: '2' }];
-  respostasIncorretas: string[] = [];
-
+  assuntoResponse: AssuntoResponse[] = [];
+  stateOptions: any[] = [{label: 'Múltipla escolha', value: 1}, {label: 'Dissertativa', value: 2}];
+  respostasIncorretas: AlternativaErradaResponse[] = [];
+  respostasIniciais: AlternativaErradaResponse[] = [];
+  dificuldades: any[] = [{label: 'Fácil', value: 'FACIL'}, {label: 'Médio', value: 'MEDIO'}, {
+    label: 'Difícil',
+    value: 'DIFICIL'
+  }];
+  editando = false;
   value: string = 'off';
+  tipoPergunta: number | null = 1;
 
-  constructor(private perguntasService: PerguntasService) {
+  form: FormGroup = new FormGroup({
+    id: new FormControl<string | null>(null),
+    enunciado: new FormControl<string | null>(null),
+    respostaCorreta: new FormControl<string | null>(null),
+    tipoProva: new FormControl<number | null>(null),
+    serie: new FormControl<number | null>(null),
+    assunto: new FormControl<number | null>(null),
+    dificuldade: new FormControl<string | null>(null),
+    alternativasErradas: new FormArray([]),
+  });
+
+  constructor(private perguntasService: PerguntasService, private activatedRoute: ActivatedRoute, private router: Router, private messageService: MessageService) {
   }
+
   ngOnInit(): void {
-    this.getSeries()
-    this.situacaoDocumento = [
-      {situacao: 1, descricao: 'Gerado'},
-      {situacao: 3, descricao: 'Liquidado'},
-      {situacao: 5, descricao: 'Cancelado'},
-      {situacao: 7, descricao: 'Liberado p/ contabilização'},
-      {situacao: 9, descricao: 'Contabilizado'},
-      {situacao: 11, descricao: 'Estornado'},
-      {situacao: 13, descricao: 'Previsto'},
-      {situacao: 15, descricao: 'Cancelado para contabilização'},
-      {situacao: 99, descricao: 'Todos'},
-    ]
-
-    this.tipoDocumento = [
-      {codigo: 1, nome: 'Controle de Aplicações Financeiras'},
-      {codigo: 3, nome: 'Autorização de Recebimento'},
-      {codigo: 5, nome: 'Autorização de Pagamento'},
-      {codigo: 7, nome: 'Autorização Contabil'},
-      {codigo: 9, nome: 'Autorização de Transferência'},
-    ]
-
-    this.grupos = [
-      {codigo: 1, descricao: 'Previdencial'},
-      {codigo: 2, descricao: 'Assistencial'},
-      {codigo: 3, descricao: 'Administrativo'},
-      {codigo: 4, descricao: 'Investimento'},
-      {codigo: 5, descricao: 'Permanente'},
-    ]
-
-    this.supraHistorico = [
-      {codigo: 90, descricao: 'Aposentadoria'},
-      {codigo: 91, descricao: 'Pensão'},
-      {codigo: 92, descricao: 'Peculio'},
-      {codigo: 93, descricao: 'Poupança'},
-      {codigo: 94, descricao: 'Auxilio'},
-      {codigo: 95, descricao: 'Abono de Natal'},
-      {codigo: 96, descricao: 'Contribuição - PREVI'},
-      {codigo: 97, descricao: 'Idenização Trabalhista'},
-      {codigo: 102, descricao: 'Beneficios'},
-    ]
-
-    this.subGrupos = [
-      {codigo: 1, descricao: 'Beneficio'},
-      {codigo: 2, descricao: 'Contribuicao'},
-    ]
+    this.getSeries();
+    this.getAssunto();
+    this.getDificuldade();
+    this.activatedRoute.params.subscribe((params) => {
+      if (params['id']) {
+        this.editando = true;
+        this.perguntasService.getPerguntaPorId(params['id']).subscribe(pergunta => {
+          this.form.patchValue({
+            id: pergunta.id,
+            enunciado: pergunta.enunciado,
+            respostaCorreta: pergunta.respostaCorreta,
+            tipoProva: tipoMap[pergunta.tipo] || null,
+            serie: pergunta.serie.id,
+            assunto: pergunta.assunto.id,
+            dificuldade: pergunta.nivel,
+          })
+          this.respostasIniciais = JSON.parse(JSON.stringify(pergunta.alternativasErradas));
+          this.respostasIncorretas = JSON.parse(JSON.stringify(pergunta.alternativasErradas));
+          this.preencherAlternativas(pergunta.alternativasErradas);
+          this.tipoPergunta = tipoMap[pergunta.tipo] || null;
+        });
+      }
+    })
+    const tipoMap: Record<string, number> = {
+      'MULTIPLAESCOLHA': 1,
+      'DISSERTATIVA': 2
+    };
   }
 
   private getSeries() {
@@ -132,11 +115,188 @@ export class PerguntasFormComponent implements OnInit{
     });
   }
 
-  adicionarResposta() {
-    this.respostasIncorretas.push('');
+  get alternativasErradas(): FormArray {
+    return this.form.get('alternativasErradas') as FormArray;
+  }
+
+  cancelar() {
+    this.router.navigate(['/inicio/perguntas']);
+  }
+
+
+  preencherAlternativas(arr: AlternativaErradaResponse[]) {
+    const alternativasArray = this.form.get('alternativasErradas') as FormArray;
+    alternativasArray.clear();
+
+    arr.forEach(alternativa => {
+      alternativasArray.push(new FormGroup({
+        id: new FormControl(alternativa.id),
+        texto: new FormControl(alternativa.texto),
+        idPergunta: new FormControl(alternativa.idPergunta)
+      }));
+    });
   }
 
   removerResposta(index: number) {
-    this.respostasIncorretas.splice(index, 1);
+    this.alternativasErradas.removeAt(index);
   }
+
+  adicionarResposta() {
+    this.alternativasErradas.push(
+      new FormGroup({
+        id: new FormControl(null),
+        texto: new FormControl(''),
+        idPergunta: new FormControl(null)
+      })
+    );
+  }
+
+  private getAssunto() {
+    this.perguntasService.getAssunto().subscribe({
+      next: response => {
+        this.assuntoResponse = response;
+      },
+      error: err => {
+        console.log(err)
+      }
+    });
+  }
+
+  private getDificuldade() {
+    this.perguntasService.getDificuldade().subscribe({
+      next: response => {
+        this.seriesResponse = response
+      },
+      error: err => {
+        console.log(err)
+      }
+    });
+  }
+
+  salvar() {
+    if (this.editando) {
+      const alternativasArray = this.form.get('alternativasErradas') as FormArray;
+
+      const respostasAtuais: AlternativaErradaResponse[] = alternativasArray.value;
+
+      const removidas = this.respostasIniciais.filter(orig =>
+        !respostasAtuais.some(atual => atual.id === orig.id)
+      );
+
+      const novas = respostasAtuais.filter(res => !res.id);
+
+      const atualizadas = respostasAtuais.filter(atual => {
+        const original = this.respostasIniciais.find(orig => orig.id === atual.id);
+        return original && original.texto !== atual.texto;
+      });
+
+      removidas.forEach(res => this.excluirResposta(res.id));
+
+      novas.forEach(res => {
+        res.idPergunta = this.form.value.id
+        this.criarAlternativaErrada(res)
+      });
+
+      atualizadas.forEach(res => this.atualizarAlternativaErrada(res));
+
+      this.atualizarPergunta();
+    } else {
+      this.criarPergunta();
+
+    }
+  }
+
+  excluirResposta(id: number) {
+    this.perguntasService.deleteAlternativaErrada(id).subscribe({
+      next: response => {
+      },
+      error: err => {
+        console.log(err)
+      }
+    });
+  }
+
+  criarAlternativaErrada(res: AlternativaErradaResponse) {
+    this.perguntasService.criarAlternativaErrada(res).subscribe({
+      next: response => {
+      },
+      error: err => {
+        console.log(err)
+      }
+    });
+  }
+
+  atualizarAlternativaErrada(res: AlternativaErradaResponse) {
+    this.perguntasService.atualizarAlternativaErrada(res).subscribe({
+      next: response => {
+      },
+      error: err => {
+        console.log(err)
+      }
+    });
+  }
+
+  private atualizarPergunta() {
+    let pergunta: PerguntasResponse = {
+      id: this.form.value.id,
+      enunciado: this.form.value.enunciado,
+      respostaCorreta: this.form.value.respostaCorreta,
+      tipo: this.form.value.tipoProva,
+      nivel: this.form.value.dificuldade,
+      serie: this.form.value.serie,
+      assunto: this.form.value.assunto,
+    }
+
+    this.perguntasService.atualizarPergunta(pergunta).subscribe({
+      next: response => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Pergunta Atualizada.',
+        });
+
+        setTimeout(() => {
+          this.router.navigate(['/inicio/perguntas']);
+        }, 1000);
+      },
+      error: err => {
+        console.log(err)
+      }
+    })
+  }
+  private criarPergunta() {
+    let pergunta: PostPerguntaRequest = {
+      enunciado: this.form.value.enunciado,
+      respostaCorreta: this.form.value.respostaCorreta,
+      tipo: this.form.value.tipoProva,
+      dificuldade: this.form.value.dificuldade,
+      professor: 0,
+      serie: this.form.value.serie,
+      assunto: this.form.value.assunto,
+      alternativasErradas: this.form.value.alternativasErradas.map((alt: AlternativaErradaResponse) => ({
+        texto: alt.texto
+      }))
+    }
+    this.perguntasService.criarPergunta(pergunta).subscribe({
+      next: response => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Pergunta cadastrada com sucesso.',
+        });
+
+        setTimeout(() => {
+          this.router.navigate(['/inicio/perguntas']);
+        }, 1000);
+      },
+      error: (err: any) => {
+        console.log(err)
+      }
+    })
+  }
+
+  atualizarTipoPergunta(value: any) {
+    this.tipoPergunta = value
+  }
+
 }

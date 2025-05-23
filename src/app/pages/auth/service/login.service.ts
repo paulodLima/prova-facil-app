@@ -30,11 +30,8 @@ export class LoginService {
       );
   }
   logout() {
-    console.log(this.getToken())
     this.router.navigate(['/auth/login'])
     localStorage.removeItem('jwt_token');
-    console.log("passandoo aqui")
-    console.log(this.getToken())
   }
 
   getToken(): string | null {

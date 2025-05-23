@@ -29,28 +29,29 @@ import {Toast} from 'primeng/toast';
                             <span class="text-muted-color font-medium">Entre para continuar</span>
                         </div>
 
-                        <div>
-                            <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                            <input pInputText id="email1" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8" [(ngModel)]="email" />
+                      <form (ngSubmit)="login()">
+                        <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
+                        <input pInputText id="email1" type="text" placeholder="Email address"
+                               class="w-full md:w-[30rem] mb-8" [(ngModel)]="email" name="email" required />
 
-                            <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Senha</label>
-                            <p-password id="password1" [(ngModel)]="password" placeholder="Password" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false"></p-password>
+                        <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Senha</label>
+                        <p-password id="password1" [(ngModel)]="password" name="password"
+                                    placeholder="Password" [toggleMask]="true"
+                                    styleClass="mb-4" [fluid]="true" [feedback]="false" required></p-password>
 
-                            <div class="flex items-center justify-between mt-2 mb-8 gap-8">
-                                <div class="flex items-center">
-                                   <!-- <p-checkbox [(ngModel)]="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
-                                    <label for="rememberme1">Lembrar me</label>-->
-                                  <a
-                                    class="font-medium no-underline ml-2 text-right cursor-pointer text-primary"
-                                    routerLink="/auth/criar-conta">
-                                    Criar Conta
-                                  </a>
-
-                                </div>
-                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Esqueceu a senha?</span>
-                            </div>
-                            <p-button label="Entrar" styleClass="w-full" (onClick)="login()"></p-button>
+                        <div class="flex items-center justify-between mt-2 mb-8 gap-8">
+                          <div class="flex items-center">
+                            <a class="font-medium no-underline ml-2 text-right cursor-pointer text-primary"
+                               routerLink="/auth/criar-conta">
+                              Criar Conta
+                            </a>
+                          </div>
+                          <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Esqueceu a senha?</span>
                         </div>
+
+                        <button pButton type="submit" label="Entrar" class="w-full"></button>
+                      </form>
+
                     </div>
                 </div>
             </div>

@@ -10,7 +10,7 @@ export const perguntasRoutes: Routes = [
     loadComponent: () => import('./perguntas-form/perguntas-form.component').then((m) => m.PerguntasFormComponent)
   },
   {
-    path: 'editar',
+    path: ':id',
     loadComponent: () => import('./perguntas-form/perguntas-form.component').then((m) => m.PerguntasFormComponent)
   }
 ];
