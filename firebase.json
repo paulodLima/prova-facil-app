@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "public": "dist/model-app/browser",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/auth/index.html"
+      }
+    ]
+  }
+}

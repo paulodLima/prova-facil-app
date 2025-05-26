@@ -11,6 +11,6 @@ export const perguntasRoutes: Routes = [
   },
   {
     path: ':id',
-    loadComponent: () => import('./perguntas-form/perguntas-form.component').then((m) => m.PerguntasFormComponent)
+    loadComponent: () => import('./perguntas-form/perguntas-form.component').then((m) => m.PerguntasFormComponent),
   }
 ];
