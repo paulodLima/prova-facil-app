@@ -18,26 +18,6 @@ import {ConfirmationService, MessageService} from 'primeng/api';
 import {Toast} from 'primeng/toast';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 
-interface situacaoDocumento {
-  situacao: number,
-  descricao: string
-}
-
-interface tipoDocumento {
-  codigo: number,
-  nome: string
-}
-
-interface grupo {
-  codigo: number,
-  descricao: string
-}
-
-interface subGrupo {
-  codigo: number,
-  descricao: string
-}
-
 @Component({
   selector: 'app-perguntas-form',
   imports: [

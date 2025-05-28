@@ -5,6 +5,37 @@
 @use './assets/demo/demo.scss';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 
+
+/* Remove a aparência padrão do dropdown */
+::ng-deep .custom-dropdown-button .p-dropdown {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  min-width: unset !important;
+}
+
+/* Remove o dropdown ícone visível (caso queira só o ícone do botão) */
+::ng-deep .custom-dropdown-button .p-dropdown .p-dropdown-trigger {
+  display: none !important;
+}
+
+/* Estilo redondo igual ao botão de cima */
+.no-style-button {
+  all: unset;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-style-button i {
+  font-size: 1.2rem;
+}
+
 label {
   font-size: 13px; /* ou 16px, 1rem, etc */
 }

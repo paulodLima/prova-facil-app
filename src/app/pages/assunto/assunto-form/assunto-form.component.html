@@ -1,0 +1,23 @@
+<p-toast />
+<p-confirmDialog/>
+<p-panel header="Cadastrar Assunto" class="text-center sm:text-left text-1xl">
+  <div>
+    <form [formGroup]="form" class="box " enctype="multipart/form-data">
+      <div class="mt-5 flex">
+        <div class="flex  w-1/4 flex-col text-xs">
+          <label class="mb-1">Descrição:</label>
+          <input formControlName="nome" pInputText/>
+          <p class="text-red-700 text-sm"
+             *ngIf="form.get('nome')?.touched && form.get('nome')?.hasError('required')">
+            O campo descrição é obrigatório.
+          </p>
+        </div>
+      </div>
+      <div
+        style="display: flex; align-content: center;align-items: center; margin-top: 80px;    place-content: start;">
+        <p-button label="Salvar" [outlined]="true" severity="info" outlined (click)="salvar()"/>
+        <p-button class="ml-4" [outlined]="true" label="Cancelar" (click)="cancelar()" severity="danger" outlined/>
+      </div>
+    </form>
+  </div>
+</p-panel>

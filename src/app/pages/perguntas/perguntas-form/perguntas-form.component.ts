@@ -18,10 +18,8 @@ import {
   SerieResponse
 } from '../perguntas.interface';
 import {SelectButton} from 'primeng/selectbutton';
-import {Chips} from 'primeng/chips';
 import {ActivatedRoute, Router} from '@angular/router';
-import {MessageService} from 'primeng/api';
-import {Message} from 'primeng/message';
+import {ConfirmationService, MessageService} from 'primeng/api';
 import {Toast} from 'primeng/toast';
 
 @Component({
@@ -41,7 +39,7 @@ import {Toast} from 'primeng/toast';
     NgIf,
     Toast,
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './perguntas-form.component.html',
   standalone: true,
   styleUrl: './perguntas-form.component.scss'
@@ -62,12 +60,12 @@ export class PerguntasFormComponent implements OnInit {
 
   form: FormGroup = new FormGroup({
     id: new FormControl<string | null>(null),
-    enunciado: new FormControl<string | null>(null),
-    respostaCorreta: new FormControl<string | null>(null),
-    tipoProva: new FormControl<number | null>(null),
-    serie: new FormControl<number | null>(null),
-    assunto: new FormControl<number | null>(null),
-    dificuldade: new FormControl<string | null>(null),
+    enunciado: new FormControl<string | null>(null, Validators.required),
+    respostaCorreta: new FormControl<string | null>(null, Validators.required),
+    tipoProva: new FormControl<number | null>(null, Validators.required),
+    serie: new FormControl<number | null>(null, Validators.required),
+    assunto: new FormControl<number | null>(null, Validators.required),
+    dificuldade: new FormControl<string | null>(null, Validators.required),
     alternativasErradas: new FormArray([]),
   });
 

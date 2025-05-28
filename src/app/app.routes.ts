@@ -10,6 +10,8 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: 'perguntas', loadChildren: () => import('./pages/perguntas/perguntas.module').then(m => m.PerguntasModule)},
+      { path: 'serie', loadChildren: () => import('./pages/serie/serie.module').then(m => m.SerieModule)},
+      { path: 'assunto', loadChildren: () => import('./pages/assunto/assunto.module').then(m => m.AssuntoModule)},
     ]
   },
   { path: 'auth', loadChildren: () => import('./pages/auth/auth.routes') },
