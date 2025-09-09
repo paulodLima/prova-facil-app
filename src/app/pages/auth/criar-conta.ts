@@ -8,15 +8,16 @@ import {Password} from 'primeng/password';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgxMaskDirective} from 'ngx-mask';
 import {LoginService} from './service/login.service';
-import {PostProfessorRequest} from './interface/login.interface';
+import {Materia, PostProfessorRequest} from './interface/login.interface';
 import {Toast} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
 import {NgIf} from '@angular/common';
+import {DropdownModule} from 'primeng/dropdown';
 
 @Component({
   selector: 'app-access',
   standalone: true,
-  imports: [ButtonModule, RouterModule, RippleModule, AppFloatingConfigurator, ButtonModule, InputText, Password, ReactiveFormsModule, FormsModule, Toast, NgIf],
+  imports: [ButtonModule, RouterModule, RippleModule, AppFloatingConfigurator, ButtonModule, InputText, Password, ReactiveFormsModule, FormsModule, Toast, NgIf, DropdownModule],
   template: `
     <app-floating-configurator/>
     <p-toast></p-toast>
@@ -109,6 +110,28 @@ import {NgIf} from '@angular/common';
                 <div *ngIf="emailModel.errors?.['required']">O email é obrigatório.</div>
               </div>
 
+              <label for="materia" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">
+                Matéria
+              </label>
+
+              <p-dropdown
+                id="materia"
+                name="materia"
+                [options]="materias"
+                [(ngModel)]="materiaSelecionada"
+                optionLabel="descricao"
+                optionValue="descricao"
+                placeholder="Selecione a matéria"
+                [filter]="true"
+                class="w-full md:w-[30rem] mb-2"
+                required
+                #materiaModel="ngModel">
+              </p-dropdown>
+
+              <div *ngIf="materiaModel.invalid && materiaModel.touched" class="text-red-500 text-sm mb-4">
+                A matéria é obrigatória.
+              </div>
+
               <label for="password1"
                      class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Senha</label>
               <p-password id="password1"
@@ -123,15 +146,41 @@ import {NgIf} from '@angular/common';
                           weakLabel="Fraca"
                           mediumLabel="Média"
                           strongLabel="Forte"
+                          minlength="8"
                           required>
               </p-password>
 
-              <span *ngIf="passwordField.invalid && passwordField.touched"
-                    class="text-danger flex -mt-4 text-red-700 mb-4">
-                    O campo senha é obrigatório.
-                </span>
+              <div *ngIf="passwordField.invalid && passwordField.touched" class="text-red-500 text-sm mb-4">
+                <div *ngIf="passwordField.errors?.['required']">A senha é obrigatória.</div>
+                <div *ngIf="passwordField.errors?.['minlength']">A senha deve ter pelo menos 8 caracteres.</div>
+              </div>
 
-              <p-button label="Finalizar" [outlined]="true" styleClass="w-full mt-5" (onClick)="cadastrar()"></p-button>
+              <label for="password1"
+                     class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Confirmar Senha</label>
+              <p-password id="password1"
+                          #passwordConfirmField="ngModel"
+                          [(ngModel)]="confirmarSenha"
+                          name="confirmPassword"
+                          placeholder="Confirmar Senha"
+                          [toggleMask]="true"
+                          styleClass="mb-4"
+                          [fluid]="true"
+                          [feedback]="true"
+                          weakLabel="Fraca"
+                          mediumLabel="Média"
+                          strongLabel="Forte"
+                          minlength="8"
+                          required
+                          (ngModelChange)="validarSenhas()">>
+              </p-password>
+
+              <span *ngIf="senhasNaoConferem && confirmarSenha"
+                    class="text-red-500 text-sm mb-4">
+                        As senhas não conferem.
+              </span>
+
+              <p-button label="Cadastrar" [outlined]="true" styleClass="w-full mt-5" (onClick)="cadastrar()"
+                        [disabled]="senhasNaoConferem"></p-button>
               <p-button label="Cancelar" [outlined]="true" severity="danger" styleClass="w-full mt-5"
                         (onClick)="Cancelar()"></p-button>
             </div>
@@ -145,17 +194,28 @@ export class CriarConta {
   email: string = '';
   nome: string = '';
   senha: string = '';
+  confirmarSenha: string = '';
+  senhasNaoConferem: boolean = false;
+  senhaInvalida: boolean = false;
+  materias: Materia[] = [];
+  materiaSelecionada: string = '';
 
   constructor(private loginService: LoginService, private messageService: MessageService, private router: Router) {
+    this.loginService.getDisciplinas().subscribe(value => {
+      this.materias = value;
+    }, error => {
+      console.log(error)
+    })
   }
 
   cadastrar(): void {
     const request: PostProfessorRequest = {
       email: this.email,
       nome: this.nome,
-      senha: this.senha
+      senha: this.senha,
+      disciplina: this.materiaSelecionada
     };
-
+    console.log(request)
     this.loginService.cadastrarProfessorLogin(request).subscribe({
       next: response => {
         this.messageService.add({severity: 'success', summary: 'Sucesso', detail: 'Cadastro Realizado com Sucesso!'});
@@ -183,5 +243,10 @@ export class CriarConta {
 
   Cancelar() {
     this.router.navigate(['/auth/login']);
+  }
+
+  validarSenhas() {
+    this.senhasNaoConferem = this.senha !== this.confirmarSenha;
+    this.senhaInvalida = !this.senha || this.senha.trim() === '';
   }
 }

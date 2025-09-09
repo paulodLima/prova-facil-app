@@ -95,10 +95,6 @@ import {NgIf} from '@angular/common';
                             [toggleMask]="true"
                             styleClass="mb-4"
                             [fluid]="true"
-                            [feedback]="true"
-                            weakLabel="Fraca"
-                            mediumLabel="Média"
-                            strongLabel="Forte"
                             required>
                 </p-password>
 

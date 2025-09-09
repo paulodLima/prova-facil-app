@@ -21,6 +21,7 @@ import {SelectButton} from 'primeng/selectbutton';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {Toast} from 'primeng/toast';
+import {Dialog} from 'primeng/dialog';
 
 @Component({
   selector: 'app-perguntas-form',
@@ -38,6 +39,7 @@ import {Toast} from 'primeng/toast';
     ReactiveFormsModule,
     NgIf,
     Toast,
+    Dialog,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './perguntas-form.component.html',
@@ -55,6 +57,7 @@ export class PerguntasFormComponent implements OnInit {
     value: 'DIFICIL'
   }];
   editando = false;
+  adicionarMais = false;
   value: string = 'off';
   tipoPergunta: number | null = 1;
 
@@ -262,6 +265,7 @@ export class PerguntasFormComponent implements OnInit {
       }
     })
   }
+
   private criarPergunta() {
     let pergunta: PostPerguntaRequest = {
       enunciado: this.form.value.enunciado,
@@ -282,10 +286,7 @@ export class PerguntasFormComponent implements OnInit {
           summary: 'Sucesso',
           detail: 'Pergunta cadastrada com sucesso.',
         });
-
-        setTimeout(() => {
-          this.router.navigate(['/inicio/perguntas']);
-        }, 1000);
+        this.adicionarMais = true;
       },
       error: (err: any) => {
         console.log(err)
@@ -297,4 +298,13 @@ export class PerguntasFormComponent implements OnInit {
     this.tipoPergunta = value
   }
 
+  finalizarCadastro() {
+    this.router.navigate(['/inicio/perguntas']);
+  }
+
+  adicionarOutraPergunta() {
+    this.adicionarMais = false
+    this.form.reset();
+    this.router.navigate(['/inicio/perguntas/novo']);
+  }
 }

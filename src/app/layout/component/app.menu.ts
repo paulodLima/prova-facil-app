@@ -56,6 +56,16 @@ export class AppMenu {
             label: 'Assunto',
             icon: 'bi bi-book',
             routerLink: ['/inicio/assunto']
+          },
+          {
+            label: 'Gerar Prova',
+            icon: 'bi bi-journal-text',
+            routerLink: ['/inicio/prova']
+          },
+          {
+            label: 'Ler Gabarito',
+            icon: 'bi bi-clipboard-check',
+            routerLink: ['/inicio/gabarito']
           }
         ]
       }

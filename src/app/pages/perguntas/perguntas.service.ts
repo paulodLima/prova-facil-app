@@ -37,6 +37,7 @@ export class PerguntasService {
 
   getHeaders(): HttpHeaders {
     const token = this.storage.getItem('jwt_token');
+    console.log(token)
     return new HttpHeaders({
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',

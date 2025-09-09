@@ -12,6 +12,8 @@ export const routes: Routes = [
       { path: 'perguntas', loadChildren: () => import('./pages/perguntas/perguntas.module').then(m => m.PerguntasModule)},
       { path: 'serie', loadChildren: () => import('./pages/serie/serie.module').then(m => m.SerieModule)},
       { path: 'assunto', loadChildren: () => import('./pages/assunto/assunto.module').then(m => m.AssuntoModule)},
+      { path: 'gabarito', loadChildren: () => import('./pages/gabarito/gabarito.module').then(m => m.GabaritoModule)},
+      { path: 'prova', loadChildren: () => import('./pages/prova/prova.module').then(m => m.ProvaModule)},
     ]
   },
   { path: 'auth', loadChildren: () => import('./pages/auth/auth.routes') },

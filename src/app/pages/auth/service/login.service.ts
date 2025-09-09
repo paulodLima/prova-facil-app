@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpResponse} from "@angular/common/http";
 import {Observable, take, tap} from "rxjs";
 import {environment} from '../../../../environments/environment';
-import {LoginRequest, PostProfessorRequest} from '../interface/login.interface';
+import {LoginRequest, Materia, PostProfessorRequest} from '../interface/login.interface';
 import {Router} from '@angular/router';
 
 @Injectable({
@@ -18,6 +18,11 @@ export class LoginService {
   cadastrarProfessorLogin(request: PostProfessorRequest): Observable<void> {
     return this.http.post<void>(`${this.url}/api/professor`,request).pipe(take(1));
   }
+
+  getDisciplinas(): Observable<Materia[]> {
+    return this.http.get<Materia[]>(`${this.url}/api/professor/materias`).pipe(take(1));
+  }
+
   loginProfessor(request: LoginRequest): Observable<any> {
     return this.http.post<any>(`${this.url}/login`,request,{ observe: 'response' }).pipe(
         tap(response => {
