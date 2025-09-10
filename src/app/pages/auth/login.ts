@@ -94,6 +94,7 @@ import {NgIf} from '@angular/common';
                             placeholder="Senha"
                             [toggleMask]="true"
                             styleClass="mb-4"
+                            [feedback]="false"
                             [fluid]="true"
                             required>
                 </p-password>
