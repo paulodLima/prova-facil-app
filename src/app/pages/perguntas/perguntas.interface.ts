@@ -30,7 +30,7 @@ export interface AssuntoResponse {
 export interface ProfessorResponse {
   nome: string;
   email: string;
-  disciplina: DisciplinaResponse;
+  disciplina: DisciplinaAssuntoResponse;
   roles: string[];
 }
 
@@ -48,7 +48,7 @@ export interface AlternativaErradaRequest {
   idPergunta: number
 }
 
-export interface DisciplinaResponse {
+export interface DisciplinaAssuntoResponse {
   texto: string;
   idPergunta: number
 }
@@ -61,10 +61,18 @@ export interface PerguntaResponse {
   respostaCorreta: string;
   serie: SerieResponse;
   assunto: AssuntoResponse;
+  disciplina: DisciplinaResponse;
   professor: ProfessorResponse;
   dataCriacao: Date;
   alternativasErradas: AlternativaErradaResponse[];
 }
+
+export interface DisciplinaResponse {
+  codigo: number;
+  descricao: string;
+  assuntos: AssuntoResponse[];
+}
+
 export interface PerguntasResponse {
   id: number;
   enunciado: string;

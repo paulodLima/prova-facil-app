@@ -51,6 +51,7 @@
           <label class="mb-1"> Disciplina:</label>
           <p-select class="alinhamento-calendar p-dropdown"
                     [options]="disciplinas"
+                    formControlName="disciplina"
                     (onChange)="onDisciplinaChange($event.value)"
                     optionLabel="descricao"
                     optionValue="codigo"

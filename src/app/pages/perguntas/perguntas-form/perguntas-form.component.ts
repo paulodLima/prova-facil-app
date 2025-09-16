@@ -78,6 +78,7 @@ export class PerguntasFormComponent implements OnInit {
     tipoProva: new FormControl<number | null>(null, Validators.required),
     serie: new FormControl<number | null>(null, Validators.required),
     assunto: new FormControl<number | null>(null, Validators.required),
+    disciplina: new FormControl<number | null>(null, Validators.required),
     dificuldade: new FormControl<string | null>(null, Validators.required),
     alternativasErradas: new FormArray([]),
   });
@@ -99,8 +100,10 @@ export class PerguntasFormComponent implements OnInit {
             tipoProva: tipoMap[pergunta.tipo] || null,
             serie: pergunta.serie.id,
             assunto: pergunta.assunto.id,
+            disciplina: pergunta.disciplina.codigo,
             dificuldade: pergunta.nivel,
           })
+          this.onDisciplinaChange(pergunta.disciplina.codigo);
           this.respostasIniciais = JSON.parse(JSON.stringify(pergunta.alternativasErradas));
           this.respostasIncorretas = JSON.parse(JSON.stringify(pergunta.alternativasErradas));
           this.preencherAlternativas(pergunta.alternativasErradas);
@@ -322,13 +325,18 @@ export class PerguntasFormComponent implements OnInit {
   adicionarOutraPergunta() {
     this.adicionarMais = false
     this.form.reset();
+    this.arquivoRequest = [];
+    this.uploadedFiles = [];
+    this.detalheDocumentos = [];
     this.router.navigate(['/inicio/perguntas/novo']);
   }
 
   onDisciplinaChange(disciplinaId: number): void {
     const disciplinaSelecionada = this.disciplinas.find(d => d.codigo === disciplinaId);
     this.assuntoResponse = disciplinaSelecionada ? disciplinaSelecionada.assuntos : [];
-    this.form.patchValue({assunto: []});
+    if (!this.editando) {
+      this.form.patchValue({ assunto: null });
+    }
   }
 
   excluir(product: any) {
