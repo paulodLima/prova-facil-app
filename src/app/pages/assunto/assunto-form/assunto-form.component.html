@@ -12,7 +12,28 @@
             O campo descrição é obrigatório.
           </p>
         </div>
+      <div class="flex w-1/4 flex-col text-xs ml-2">
+        <label class="mb-1">Disciplina:</label>
+        <p-select class="alinhamento-calendar"
+                  [options]="disciplinaResponses"
+                  formControlName="disciplina"
+                  optionLabel="descricao"
+                  optionValue="codigo"
+                  required>
+          <ng-template let-tipo pTemplate="selectedItem">
+            {{ tipo.descricao }}
+          </ng-template>
+          <ng-template let-tipo pTemplate="item">
+            {{ tipo.descricao }}
+          </ng-template>
+        </p-select>
+        <p class="text-red-700 text-sm"
+           *ngIf="form.get('disciplina')?.touched && form.get('disciplina')?.hasError('required')">
+          O campo disciplina é obrigatório.
+        </p>
       </div>
+      </div>
+
       <div
         style="display: flex; align-content: center;align-items: center; margin-top: 80px;    place-content: start;">
         <p-button label="Salvar" [outlined]="true" severity="info" outlined (click)="salvar()"/>

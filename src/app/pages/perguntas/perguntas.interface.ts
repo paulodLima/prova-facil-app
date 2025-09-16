@@ -30,7 +30,7 @@ export interface AssuntoResponse {
 export interface ProfessorResponse {
   nome: string;
   email: string;
-  senha: string;
+  disciplina: DisciplinaResponse;
   roles: string[];
 }
 
@@ -44,6 +44,11 @@ export interface PostAlternativaErradaResponse {
 }
 
 export interface AlternativaErradaRequest {
+  texto: string;
+  idPergunta: number
+}
+
+export interface DisciplinaResponse {
   texto: string;
   idPergunta: number
 }
@@ -93,4 +98,15 @@ export interface Page<T> {
   number: number;
   sort: any;
   empty: boolean;
+}
+
+export interface ArquivoRequest {
+  dataDocumento:Date;
+  nomeArquivo: string;
+  arquivo: File;
+}
+
+export interface DetalheArquivo {
+  arquivo: File;
+  dataDocumento: Date;
 }

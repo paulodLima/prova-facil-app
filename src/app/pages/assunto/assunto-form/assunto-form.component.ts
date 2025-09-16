@@ -1,15 +1,17 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AssuntoService} from '../assunto.service';
-import {ConfirmationService, MessageService} from 'primeng/api';
+import {ConfirmationService, MessageService, PrimeTemplate} from 'primeng/api';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Toast} from 'primeng/toast';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {Panel} from 'primeng/panel';
 import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
-import {PostSerieRequest} from '../../serie/serie.interface';
 import {NgIf} from '@angular/common';
+import {AssuntoResponse} from '../../perguntas/perguntas.interface';
+import {DisciplinaResponse, PostAssuntoRequest} from '../assunto.interface';
+import {Select} from 'primeng/select';
 
 @Component({
   selector: 'app-assunto-form',
@@ -20,7 +22,9 @@ import {NgIf} from '@angular/common';
     ReactiveFormsModule,
     Button,
     InputText,
-    NgIf
+    NgIf,
+    PrimeTemplate,
+    Select
   ],
   providers: [ConfirmationService, MessageService],
   standalone: true,
@@ -29,8 +33,11 @@ import {NgIf} from '@angular/common';
 })
 export class AssuntoFormComponent implements OnInit{
   editando = false;
+  disciplinaResponses: DisciplinaResponse[] = []
+
   form: FormGroup = new FormGroup({
     id: new FormControl<string | null>(null),
+    disciplina: new FormControl<string | null>(null),
     nome: new FormControl<string | null>(null, Validators.required)
   });
 
@@ -38,6 +45,10 @@ export class AssuntoFormComponent implements OnInit{
   }
 
   ngOnInit(): void {
+    this.assuntoService.getDisciplinaPorProfessor().subscribe(result => {
+      this.disciplinaResponses = result
+    });
+
     this.activatedRoute.params.subscribe((params) => {
       if (params['id']) {
         this.editando = true;
@@ -53,11 +64,12 @@ export class AssuntoFormComponent implements OnInit{
 
 
   salvar() {
-    let serie: PostSerieRequest = {
-      nome:  this.form.value.nome
+    let assunto: PostAssuntoRequest = {
+      nome:  this.form.value.nome,
+      disciplina:  this.form.value.disciplina,
     }
     if(!this.editando){
-      this.assuntoService.cadastrarAssunto(serie).subscribe({
+      this.assuntoService.cadastrarAssunto(assunto).subscribe({
         next: response => {
           this.messageService.add({
             severity: 'success',
@@ -74,7 +86,7 @@ export class AssuntoFormComponent implements OnInit{
         }
       })
     } else {
-      this.assuntoService.atualizarAssunto(serie, this.form.value.id).subscribe({
+      this.assuntoService.atualizarAssunto(assunto, this.form.value.id).subscribe({
         next: response => {
           this.messageService.add({
             severity: 'success',

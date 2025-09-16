@@ -1,19 +1,16 @@
 import {Component, OnInit} from '@angular/core';
-import {FloatLabel} from 'primeng/floatlabel';
 import {InputText} from 'primeng/inputtext';
 import {Select} from 'primeng/select';
 import {FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Textarea} from 'primeng/textarea';
 import {DropdownModule} from 'primeng/dropdown';
-import {InputNumber} from 'primeng/inputnumber';
 import {Button, ButtonDirective} from 'primeng/button';
 import {Panel} from 'primeng/panel';
-import {NgForOf, NgIf, NgOptimizedImage} from '@angular/common';
-import {Calendar} from 'primeng/calendar';
+import {DatePipe, NgForOf, NgIf, NgOptimizedImage} from '@angular/common';
 import {PerguntasService} from '../perguntas.service';
 import {
-  AlternativaErradaResponse,
-  AssuntoResponse,
+  AlternativaErradaResponse, ArquivoRequest,
+  AssuntoResponse, DetalheArquivo,
   PerguntasResponse, PostPerguntaRequest,
   SerieResponse
 } from '../perguntas.interface';
@@ -22,6 +19,11 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {Toast} from 'primeng/toast';
 import {Dialog} from 'primeng/dialog';
+import {DisciplinaResponse} from '../../prova/prova.interface';
+import {ProvaService} from '../../prova/prova.service';
+import {FileUpload, FileUploadEvent} from 'primeng/fileupload';
+import {TableModule} from 'primeng/table';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-perguntas-form',
@@ -40,6 +42,10 @@ import {Dialog} from 'primeng/dialog';
     NgIf,
     Toast,
     Dialog,
+    FileUpload,
+    TableModule,
+    DatePipe,
+    Tooltip,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './perguntas-form.component.html',
@@ -49,6 +55,7 @@ import {Dialog} from 'primeng/dialog';
 export class PerguntasFormComponent implements OnInit {
   seriesResponse: SerieResponse[] = [];
   assuntoResponse: AssuntoResponse[] = [];
+  disciplinas: DisciplinaResponse[] = [];
   stateOptions: any[] = [{label: 'Múltipla escolha', value: 1}, {label: 'Dissertativa', value: 2}];
   respostasIncorretas: AlternativaErradaResponse[] = [];
   respostasIniciais: AlternativaErradaResponse[] = [];
@@ -60,11 +67,14 @@ export class PerguntasFormComponent implements OnInit {
   adicionarMais = false;
   value: string = 'off';
   tipoPergunta: number | null = 1;
+  arquivoRequest: ArquivoRequest[] = [];
+  uploadedFiles: any[] = [];
+  detalheDocumentos: DetalheArquivo[] = [];
 
   form: FormGroup = new FormGroup({
     id: new FormControl<string | null>(null),
     enunciado: new FormControl<string | null>(null, Validators.required),
-    respostaCorreta: new FormControl<string | null>(null, Validators.required),
+    respostaCorreta: new FormControl<string | null>(null),
     tipoProva: new FormControl<number | null>(null, Validators.required),
     serie: new FormControl<number | null>(null, Validators.required),
     assunto: new FormControl<number | null>(null, Validators.required),
@@ -72,13 +82,12 @@ export class PerguntasFormComponent implements OnInit {
     alternativasErradas: new FormArray([]),
   });
 
-  constructor(private perguntasService: PerguntasService, private activatedRoute: ActivatedRoute, private router: Router, private messageService: MessageService) {
+  constructor(private provaService: ProvaService, private perguntasService: PerguntasService, private activatedRoute: ActivatedRoute, private router: Router, private messageService: MessageService) {
   }
 
   ngOnInit(): void {
     this.getSeries();
-    this.getAssunto();
-    this.getDificuldade();
+    this.getDisciplina();
     this.activatedRoute.params.subscribe((params) => {
       if (params['id']) {
         this.editando = true;
@@ -109,6 +118,17 @@ export class PerguntasFormComponent implements OnInit {
     this.perguntasService.getSeries().subscribe({
       next: response => {
         this.seriesResponse = response
+      },
+      error: err => {
+        console.log(err)
+      }
+    });
+  }
+
+  private getDisciplina() {
+    this.provaService.getDisciplina().subscribe({
+      next: response => {
+        this.disciplinas = response
       },
       error: err => {
         console.log(err)
@@ -156,17 +176,6 @@ export class PerguntasFormComponent implements OnInit {
     this.perguntasService.getAssunto().subscribe({
       next: response => {
         this.assuntoResponse = response;
-      },
-      error: err => {
-        console.log(err)
-      }
-    });
-  }
-
-  private getDificuldade() {
-    this.perguntasService.getDificuldade().subscribe({
-      next: response => {
-        this.seriesResponse = response
       },
       error: err => {
         console.log(err)
@@ -267,6 +276,8 @@ export class PerguntasFormComponent implements OnInit {
   }
 
   private criarPergunta() {
+    const formData = new FormData();
+
     let pergunta: PostPerguntaRequest = {
       enunciado: this.form.value.enunciado,
       respostaCorreta: this.form.value.respostaCorreta,
@@ -279,7 +290,13 @@ export class PerguntasFormComponent implements OnInit {
         texto: alt.texto
       }))
     }
-    this.perguntasService.criarPergunta(pergunta).subscribe({
+    formData.append("request", new Blob([JSON.stringify(pergunta)], { type: "application/json" }));
+
+    if (this.arquivoRequest.length > 0 && this.arquivoRequest[0].arquivo) {
+      formData.append("arquivo", this.arquivoRequest[0].arquivo);
+    }
+
+    this.perguntasService.criarPergunta(formData).subscribe({
       next: response => {
         this.messageService.add({
           severity: 'success',
@@ -306,5 +323,43 @@ export class PerguntasFormComponent implements OnInit {
     this.adicionarMais = false
     this.form.reset();
     this.router.navigate(['/inicio/perguntas/novo']);
+  }
+
+  onDisciplinaChange(disciplinaId: number): void {
+    const disciplinaSelecionada = this.disciplinas.find(d => d.codigo === disciplinaId);
+    this.assuntoResponse = disciplinaSelecionada ? disciplinaSelecionada.assuntos : [];
+    this.form.patchValue({assunto: []});
+  }
+
+  excluir(product: any) {
+    const index = this.arquivoRequest.indexOf(product);
+    if (index !== -1) {
+      this.arquivoRequest.splice(index, 1);
+    }
+  }
+
+  onUpload(event: FileUploadEvent) {
+    for (let file of event.files) {
+      this.addDocumento(file)
+      this.uploadedFiles.push(file);
+
+      const detalhe: DetalheArquivo = {
+        arquivo: file,
+        dataDocumento: new Date()
+      };
+
+      this.detalheDocumentos.push(detalhe)
+
+    }
+    this.messageService.add({severity: 'info', summary: ' ', detail: 'Arquivo Adicionado'});
+  }
+
+  addDocumento(file: File) {
+    const arquivo: ArquivoRequest = {
+      dataDocumento: new Date(),
+      nomeArquivo: file.name,
+      arquivo: file,
+    };
+    this.arquivoRequest.push(arquivo);
   }
 }

@@ -1,5 +1,5 @@
-import {Component} from '@angular/core';
-import {Router, RouterModule} from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 import {RippleModule} from 'primeng/ripple';
 import {AppFloatingConfigurator} from '../../layout/component/app.floatingconfigurator';
@@ -8,17 +8,17 @@ import {Password} from 'primeng/password';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgxMaskDirective} from 'ngx-mask';
 import {LoginService} from './service/login.service';
-import {Materia, PostProfessorRequest, Serie} from './interface/login.interface';
+import {Materia, PostProfessorRequest, ResetSenhaRequest} from './interface/login.interface';
 import {Toast} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
 import {NgIf} from '@angular/common';
 import {DropdownModule} from 'primeng/dropdown';
-import {MultiSelect} from 'primeng/multiselect';
+import e, {request} from 'express';
 
 @Component({
   selector: 'app-access',
   standalone: true,
-  imports: [ButtonModule, RouterModule, RippleModule, AppFloatingConfigurator, ButtonModule, InputText, Password, ReactiveFormsModule, FormsModule, Toast, NgIf, DropdownModule, MultiSelect],
+  imports: [ButtonModule, RouterModule, RippleModule, AppFloatingConfigurator, ButtonModule, InputText, Password, ReactiveFormsModule, FormsModule, Toast, NgIf, DropdownModule],
   template: `
     <app-floating-configurator/>
     <p-toast></p-toast>
@@ -73,91 +73,58 @@ import {MultiSelect} from 'primeng/multiselect';
                 <path d="M510.727 219.228l15.454-4.141 194.074 724.328-15.454 4.141z" fill="#0A0408"/>
               </svg>
               <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Bem Vindo ao Prova Fácil</div>
-              <span class="text-muted-color font-medium">Preencha os dados para completar o cadastro</span>
+              <span class="text-muted-color font-medium">Favor cadastrar uma senha para finalizar o seu cadastro</span>
             </div>
 
             <div>
-              <label for="email1"
-                     class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Nome</label>
-              <input
-                pInputText
-                id="nome"
-                name="nome"
-                [(ngModel)]="nome"
-                #nomeModel="ngModel"
-                required
-                type="text"
-                placeholder="Nome Completo"
-                class="w-full md:w-[30rem] mb-2"
-              />
-              <div *ngIf="nomeModel.invalid && nomeModel.touched" class="text-red-500 text-sm mb-4">
-                O nome é obrigatório.
-              </div>
-              <label for="email1"
-                     class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-              <input
-                pInputText
-                id="email1"
-                name="email"
-                [(ngModel)]="email"
-                #emailModel="ngModel"
-                required
-                type="email"
-                placeholder="Email"
-                class="w-full md:w-[30rem] mb-2"
-              />
-              <div *ngIf="emailModel.touched && emailModel.invalid" class="text-red-500 text-sm">
-                <div *ngIf="emailModel.errors?.['email']">Informe um email válido.</div>
-                <div *ngIf="emailModel.errors?.['required']">O email é obrigatório.</div>
+              <label for="password1"
+                     class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Senha</label>
+              <p-password id="password1"
+                          #passwordField="ngModel"
+                          [(ngModel)]="senha"
+                          name="password"
+                          placeholder="Senha"
+                          [toggleMask]="true"
+                          styleClass="mb-4"
+                          [fluid]="true"
+                          [feedback]="true"
+                          weakLabel="Fraca"
+                          mediumLabel="Média"
+                          strongLabel="Forte"
+                          minlength="8"
+                          required>
+              </p-password>
+
+              <div *ngIf="passwordField.invalid && passwordField.touched" class="text-red-500 text-sm mb-4">
+                <div *ngIf="passwordField.errors?.['required']">A senha é obrigatória.</div>
+                <div *ngIf="passwordField.errors?.['minlength']">A senha deve ter pelo menos 8 caracteres.</div>
               </div>
 
-              <div>
-                <label for="materia" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">
-                  Matérias
-                </label>
+              <label for="password1"
+                     class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Confirmar Senha</label>
+              <p-password id="password1"
+                          #passwordConfirmField="ngModel"
+                          [(ngModel)]="confirmarSenha"
+                          name="confirmPassword"
+                          placeholder="Confirmar Senha"
+                          [toggleMask]="true"
+                          styleClass="mb-4"
+                          [fluid]="true"
+                          [feedback]="false"
+                          weakLabel="Fraca"
+                          mediumLabel="Média"
+                          strongLabel="Forte"
+                          minlength="8"
+                          required
+                          (ngModelChange)="validarSenhas()">>
+              </p-password>
 
-                <p-multiselect
-                  id="materia"
-                  name="materia"
-                  [options]="materias"
-                  [(ngModel)]="materiaSelecionada"
-                  optionLabel="descricao"
-                  optionValue="codigo"
-                  placeholder="Selecione a matéria"
-                  [filter]="true"
-                  class="w-full md:w-[30rem] mb-2"
-                  required
-                  #materiaModel="ngModel">
-                </p-multiselect>
-              </div>
-              <div *ngIf="materiaModel.invalid && materiaModel.touched" class="text-red-500 text-sm mb-4">
-                A matéria é obrigatória.
-              </div>
+              <span *ngIf="senhasNaoConferem && confirmarSenha"
+                    class="text-red-500 text-sm mb-4">
+                        As senhas não conferem.
+              </span>
 
-              <div>
-                <label for="serie" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">
-                  Séries
-                </label>
-
-                <p-multiselect
-                  id="serie"
-                  name="serie"
-                  [options]="series"
-                  [(ngModel)]="serieSelecionada"
-                  optionLabel="nome"
-                  optionValue="id"
-                  placeholder="Selecione a série"
-                  [filter]="true"
-                  class="w-full md:w-[30rem] mb-2"
-                  required
-                  #serieModal="ngModel">
-                </p-multiselect>
-              </div>
-              <div *ngIf="serieModal.invalid && serieModal.touched" class="text-red-500 text-sm mb-4">
-                A série é obrigatória.
-              </div>
-
-              <p-button label="Cadastrar" [outlined]="true" styleClass="w-full mt-5" (onClick)="cadastrar()"
+              <p-button label="Finalizar" [outlined]="true" styleClass="w-full mt-5" (onClick)="cadastrar()"
                         [disabled]="senhasNaoConferem"></p-button>
               <p-button label="Cancelar" [outlined]="true" severity="danger" styleClass="w-full mt-5"
                         (onClick)="Cancelar()"></p-button>
@@ -168,43 +135,25 @@ import {MultiSelect} from 'primeng/multiselect';
     </div>`
 })
 
-export class CriarConta {
-  email: string = '';
-  nome: string = '';
-  senha: string = 'provisorio';
+export class Reset implements OnInit{
+  senha: string = '';
   confirmarSenha: string = '';
   senhasNaoConferem: boolean = false;
   senhaInvalida: boolean = false;
-  materias: Materia[] = [];
-  materiaSelecionada: string[] = [];
-  series: Serie[] = [];
-  serieSelecionada: string[] = [];
+  token!: string;
 
-  constructor(private loginService: LoginService, private messageService: MessageService, private router: Router) {
-    this.loginService.getDisciplinas().subscribe(value => {
-      this.materias = value;
-    }, error => {
-      console.log(error)
-    })
+  constructor(private route: ActivatedRoute,private loginService: LoginService, private messageService: MessageService, private router: Router) {
 
-    this.loginService.getSeries().subscribe(value => {
-      this.series = value;
-    }, error => {
-      console.log(error)
-    })
   }
 
   cadastrar(): void {
-    const request: PostProfessorRequest = {
-      email: this.email,
-      nome: this.nome,
+    const request: ResetSenhaRequest = {
       senha: this.senha,
-      disciplina: this.materiaSelecionada,
-      serie: this.serieSelecionada
     };
-    this.loginService.cadastrarProfessorLogin(request).subscribe({
+
+    this.loginService.cadastrarSenhaProfessor(request,this.token).subscribe({
       next: response => {
-        this.messageService.add({severity: 'success', summary: 'Sucesso', detail: 'Cadastro Realizado com Sucesso!'});
+        this.messageService.add({severity: 'success', summary: 'Sucesso', detail: 'Senha Cadastrada com Sucesso!'});
         setTimeout(() => {
           this.router.navigate(['/inicio']);
         }, 1000);
@@ -234,5 +183,9 @@ export class CriarConta {
   validarSenhas() {
     this.senhasNaoConferem = this.senha !== this.confirmarSenha;
     this.senhaInvalida = !this.senha || this.senha.trim() === '';
+  }
+
+  ngOnInit(): void {
+    this.token = this.route.snapshot.paramMap.get('token')!;
   }
 }

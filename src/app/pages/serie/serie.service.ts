@@ -2,9 +2,10 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpResponse} from "@angular/common/http";
 import {environment} from '../../../environments/environment';
 import {StorageService} from '../../guards/storage.service';
-import {Observable} from 'rxjs';
-import {PostSerieRequest} from './serie.interface';
-import {AlternativaErradaResponse, PerguntaResponse, SerieResponse} from '../perguntas/perguntas.interface';
+import {Observable, take} from 'rxjs';
+import {PostSerieProfessorRequest, PostSerieRequest} from './serie.interface';
+import {SerieResponse} from '../perguntas/perguntas.interface';
+import {Serie} from '../auth/interface/login.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -24,12 +25,16 @@ export class SerieService {
     });
   }
 
-  cadastrarSerie(serie: PostSerieRequest): Observable<any> {
+  cadastrarSerie(postSerieProfessorRequest: PostSerieProfessorRequest): Observable<any> {
     return this.http.post<any>(
-      `${this.url}/api/serie`,
-      serie,
+      `${this.url}/api/serie/professor`,
+      postSerieProfessorRequest,
       { headers: this.getHeaders() }
     );
+  }
+
+  getSeries(): Observable<Serie[]> {
+    return this.http.get<Serie[]>(`${this.url}/api/serie`).pipe(take(1));
   }
 
   excluirSerie(id: number) {

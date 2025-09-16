@@ -2,7 +2,12 @@ export interface PostProfessorRequest {
   nome: string;
   email: string;
   senha: string;
-  disciplina: string;
+  disciplina: string[];
+  serie: string[];
+}
+
+export interface ResetSenhaRequest {
+  senha: string;
 }
 export interface LoginRequest {
   email: string;
@@ -10,6 +15,10 @@ export interface LoginRequest {
 }
 
 export interface Materia {
-  codigo: string;
+  codigo: number;
   descricao: string;
+}
+export interface Serie {
+  id: number;
+  nome: string;
 }

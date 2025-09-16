@@ -20,7 +20,6 @@ export class GabaritoService {
     });
   }
   corrigirGabarito(formData: any) {
-    console.log(formData)
     return this.http.post<any>(`${this.url}/corrigir`,formData);
   }
 }

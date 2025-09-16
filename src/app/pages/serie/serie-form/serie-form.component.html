@@ -6,10 +6,21 @@
       <div class="mt-5 flex">
         <div class="flex  w-1/4 flex-col text-xs">
           <label class="mb-1">Descrição:</label>
-          <input formControlName="nome" pInputText/>
+          <p-multiselect
+            id="serie"
+            name="serie"
+            [options]="series"
+            formControlName="serie"
+            optionLabel="nome"
+            optionValue="id"
+            placeholder="Selecione a série"
+            [filter]="true"
+            class="w-full md:w-[30rem] mb-2"
+            required>
+          </p-multiselect>
           <p class="text-red-700 text-sm"
              *ngIf="form.get('nome')?.touched && form.get('nome')?.hasError('required')">
-            O campo descrição é obrigatório.
+            O campo serie é obrigatório.
           </p>
         </div>
       </div>

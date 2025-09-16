@@ -51,6 +51,82 @@
         </p>
       </div>
     </div>
+    <div style="display: flex; " class="mt-4">
+      <div class="flex w-1/4 flex-col text-xs ml-2" >
+        <label class="mb-1"> Série:</label>
+        <p-select  class="inline-grid"
+                  [options]="seriesResponse"
+                  formControlName="serie"
+                  optionLabel="nome"
+                  optionValue="id"
+                  required>
+          <ng-template let-serie pTemplate="selectedItem">
+            {{ serie.nome }}
+          </ng-template>
+          <ng-template let-serie pTemplate="item">
+            {{ serie.nome }}
+          </ng-template>
+        </p-select>
+        <p class="text-red-700 text-sm"
+           *ngIf="form.get('serie')?.touched && form.get('serie')?.hasError('required')">
+          O campo série é obrigatório.
+        </p>
+      </div>
+
+      <div class="flex w-1/4 flex-col text-xs ml-2">
+        <label class="mb-1"> Disciplina:</label>
+        <p-select  class="inline-grid"
+                  [options]="disciplinas"
+                  (onChange)="onDisciplinaChange($event.value)"
+                  formControlName="disciplina"
+                  optionLabel="descricao"
+                  optionValue="codigo"
+                  required>
+          <ng-template let-serie pTemplate="selectedItem">
+            {{ serie.descricao }}
+          </ng-template>
+          <ng-template let-serie pTemplate="item">
+            {{ serie.descricao }}
+          </ng-template>
+        </p-select>
+        <p class="text-red-700 text-sm"
+           *ngIf="form.get('serie')?.touched && form.get('serie')?.hasError('required')">
+          O campo série é obrigatório.
+        </p>
+      </div>
+
+      <div class="flex w-1/4 flex-col text-xs ml-2">
+        <label class="mb-1">Assunto:</label>
+        <p-multiselect  class="inline-grid"
+                  [options]="assuntoResponse"
+                  formControlName="assunto"
+                  optionLabel="nome"
+                  optionValue="id"
+                  required>
+          <ng-template let-tipo pTemplate="selectedItem">
+            {{ tipo.nome }}
+          </ng-template>
+          <ng-template let-tipo pTemplate="item">
+            {{ tipo.nome }}
+          </ng-template>
+        </p-multiselect>
+        <p class="text-red-700 text-sm"
+           *ngIf="form.get('assunto')?.touched && form.get('assunto')?.hasError('required')">
+          O campo assunto é obrigatório.
+        </p>
+      </div>
+      <div class="flex w-1/4 flex-col text-xs ml-2">
+        <label class="mb-1">Nota:</label>
+        <p-inputNumber
+          formControlName="nota"
+          class="inline-grid"
+          locale="pt-BR"/>
+        <p class="text-red-700 text-sm"
+           *ngIf="form.get('nota')?.touched && form.get('nota')?.hasError('required')">
+          O campo de nota é obrigatório.
+        </p>
+      </div>
+    </div>
     <button
       pButton
       label="Gerar Prova"

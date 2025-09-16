@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders, HttpResponse} from "@angular/common/http";
 import {environment} from '../../../environments/environment';
 import {StorageService} from '../../guards/storage.service';
 import {Observable} from 'rxjs';
-import {PostSerieRequest} from './assunto.interface';
+import {DisciplinaResponse, PostAssuntoRequest} from './assunto.interface';
 import {
   AlternativaErradaResponse,
   AssuntoResponse,
@@ -29,10 +29,10 @@ export class AssuntoService {
     });
   }
 
-  cadastrarAssunto(serie: PostSerieRequest): Observable<any> {
+  cadastrarAssunto(assunto: PostAssuntoRequest): Observable<any> {
     return this.http.post<any>(
-      `${this.url}/api/assunto`,
-      serie,
+      `${this.url}/api/assunto/professor`,
+      assunto,
       { headers: this.getHeaders() }
     );
   }
@@ -44,8 +44,11 @@ export class AssuntoService {
   getAssuntoPorId(id: string): Observable<AssuntoResponse> {
     return this.http.get<AssuntoResponse>(`${this.url}/api/assunto/${id}`, {headers: this.getHeaders()});
   }
+  getDisciplinaPorProfessor(): Observable<DisciplinaResponse[]> {
+    return this.http.get<DisciplinaResponse[]>(`${this.url}/api/disciplina/professor`, {headers: this.getHeaders()});
+  }
 
-  atualizarAssunto(res: PostSerieRequest, id: number): Observable<any> {
+  atualizarAssunto(res: PostAssuntoRequest, id: number): Observable<any> {
     return this.http.put<any>(`${this.url}/api/assunto/${id}`,res, {headers: this.getHeaders()});
   }
 }

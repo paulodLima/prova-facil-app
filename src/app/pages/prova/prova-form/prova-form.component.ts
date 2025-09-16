@@ -3,7 +3,7 @@ import {Toast} from 'primeng/toast';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {ConfirmationService, MessageService, PrimeTemplate} from 'primeng/api';
 import {Panel} from 'primeng/panel';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {NgClass, NgIf} from '@angular/common';
 import {ButtonDirective} from 'primeng/button';
@@ -11,8 +11,11 @@ import {Select} from 'primeng/select';
 import {SelectButton} from 'primeng/selectbutton';
 import {InputNumber} from 'primeng/inputnumber';
 import {ProvaService} from '../prova.service';
-import {ProvaRequest} from '../prova.interface';
+import {DisciplinaResponse, ProvaRequest} from '../prova.interface';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
+import {AssuntoResponse, SerieResponse} from '../../perguntas/perguntas.interface';
+import {PerguntasService} from '../../perguntas/perguntas.service';
+import {MultiSelect} from 'primeng/multiselect';
 
 @Component({
   selector: 'app-prova-form',
@@ -29,6 +32,7 @@ import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
     Select,
     SelectButton,
     InputNumber,
+    MultiSelect,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './prova-form.component.html',
@@ -39,17 +43,27 @@ export class ProvaFormComponent implements OnInit {
   form: FormGroup;
   provaVisible = false;
   pdfUrl: any
+  seriesResponse: SerieResponse[] = [];
+  disciplinas: DisciplinaResponse[] = [];
+  assuntoResponse: AssuntoResponse[] = [];
 
-  constructor(private fb: FormBuilder, private confirmationService: ConfirmationService, private messageService: MessageService, private provaService: ProvaService, private sanitizer: DomSanitizer) {
+  constructor(private fb: FormBuilder, private confirmationService: ConfirmationService, private messageService: MessageService, private provaService: ProvaService, private sanitizer: DomSanitizer, private perguntasService: PerguntasService) {
     this.form = this.fb.group({
       totalQuestoes: [null, [Validators.required, Validators.min(1)]],
       facil: [0, [Validators.required, Validators.min(0)]],
       medio: [0, [Validators.required, Validators.min(0)]],
       dificil: [0, [Validators.required, Validators.min(0)]],
+      nota: [0, [Validators.required, Validators.min(0)]],
+      serie: new FormControl<number | null>(null, Validators.required),
+      disciplina: new FormControl<number | null>(null, Validators.required),
+      assunto: new FormControl<number[] | null>([], Validators.required),
     });
   }
 
   ngOnInit(): void {
+    this.getSeries()
+    this.getDisciplina()
+    //this.getAssunto()
   }
 
   get soma(): number {
@@ -87,7 +101,6 @@ export class ProvaFormComponent implements OnInit {
         next: blob => {
           if (blob.type === 'application/pdf') {
             const url = window.URL.createObjectURL(blob);
-            console.log('url', url)
             this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url); // ⚡ marca como segura
           } else {
             console.error('Não é PDF, provavelmente erro do backend');
@@ -96,6 +109,43 @@ export class ProvaFormComponent implements OnInit {
         error: err => console.error('Erro ao gerar PDF:', err)
       });
     }
+  }
+  private getAssunto() {
+    this.perguntasService.getAssunto().subscribe({
+      next: response => {
+        this.assuntoResponse = response;
+      },
+      error: err => {
+        console.log(err)
+      }
+    });
+  }
+
+  private getSeries() {
+    this.perguntasService.getSeries().subscribe({
+      next: response => {
+        this.seriesResponse = response
+      },
+      error: err => {
+        console.log(err)
+      }
+    });
+  }
+  private getDisciplina() {
+    this.provaService.getDisciplina().subscribe({
+      next: response => {
+        this.disciplinas = response
+      },
+      error: err => {
+        console.log(err)
+      }
+    });
+  }
+
+  onDisciplinaChange(disciplinaId: number): void {
+    const disciplinaSelecionada = this.disciplinas.find(d => d.codigo === disciplinaId);
+    this.assuntoResponse = disciplinaSelecionada ? disciplinaSelecionada.assuntos : [];
+    this.form.patchValue({ assunto: [] });
   }
 
 }

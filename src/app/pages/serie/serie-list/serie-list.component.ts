@@ -7,8 +7,8 @@ import {Panel} from 'primeng/panel';
 import {TableModule} from 'primeng/table';
 import {Button, ButtonDirective} from 'primeng/button';
 import {Router} from '@angular/router';
-import {PostSerieRequest} from '../serie.interface';
 import {SerieService} from '../serie.service';
+import {SerieResponse} from '../../perguntas/perguntas.interface';
 
 @Component({
   selector: 'app-serie-list',
@@ -26,7 +26,7 @@ import {SerieService} from '../serie.service';
   styleUrl: './serie-list.component.scss'
 })
 export class SerieListComponent implements OnInit {
-  seriesResponse: PostSerieRequest[] = [];
+  seriesResponse: SerieResponse[] = [];
 
   constructor(private perguntasService: PerguntasService,private serieSevice: SerieService, private route: Router, private confirmationService: ConfirmationService, private messageService: MessageService) {
   }
