@@ -1,0 +1,77 @@
+<p-toast/>
+<p-confirmDialog/>
+<p-panel header="Cadastro de Escola" class="text-center sm:text-left">
+  <form [formGroup]="form" class="box " enctype="multipart/form-data">
+    <div style="display: flex; justify-content: space-between;">
+      <div class="flex w-1/3 flex-col text-xs" style="display:flex">
+        <label class="mb-1"> Nome da Escola:</label>
+        <input formControlName="nome" pInputText/>
+        <p class="text-red-700 text-sm"
+           *ngIf="form.get('nome')?.touched && form.get('nome')?.hasError('required')">
+          O campo nome é obrigatório.
+        </p>
+      </div>
+
+      <div class="flex w-1/3 flex-col text-xs ml-2">
+        <label class="mb-1">E-mail:</label>
+        <input formControlName="email" pInputText mask="A*@A*.A*" [validation]="true" [dropSpecialCharacters]="false"/>
+        <p class="text-red-700 text-sm"
+           *ngIf="form.get('email')?.touched && form.get('email')?.hasError('required')">
+          O campo de email é obrigatório.
+        </p>
+        <p class="text-red-700 text-sm"
+           *ngIf="form.get('email')?.touched && form.get('email')?.hasError('email')">
+          Informe um e-mail válido.
+        </p>
+      </div>
+      <div class="flex w-1/3 flex-col text-xs ml-2" >
+        <label class="mb-1"> Estado:</label>
+        <p-select  class="inline-grid text-xs"
+                   [options]="estados"
+                   formControlName="estado"
+                   optionLabel="label"
+                   optionValue="label"
+                   placeholder="Selecione o estado"
+                   required>
+          <ng-template let-serie pTemplate="selectedItem" class="text-xs">
+            {{ serie.label }}
+          </ng-template>
+          <ng-template let-serie pTemplate="item" class="text-xs">
+            {{ serie.label }}
+          </ng-template>
+        </p-select>
+        <p class="text-red-700 text-sm"
+           *ngIf="form.get('estado')?.touched && form.get('estado')?.hasError('required')">
+          O campo estado é obrigatório.
+        </p>
+      </div>
+    </div>
+    <div style="display: flex" class="mt-6">
+        <div class="flex w-1/3 flex-col text-xs">
+          <label class="mb-1">Logo da Escola:</label>
+          <p-fileUpload #fileUpload class="file-upload-custom space-x-4" name="Carregar Imagem"
+                        url="https://www.primefaces.org/cdn/api/upload.php" (onUpload)="onUpload($event,'logoEscola')" [multiple]="false"
+                        accept="image/*"
+                        chooseLabel="Adicionar" uploadLabel="Enviar" cancelLabel="Cancelar">
+          </p-fileUpload>
+        </div>
+
+        <div class="flex w-1/3 flex-col text-xs ml-4">
+          <label class="mb-1">Logo da Secretaria de Educação:</label>
+          <p-fileUpload #fileUpload class="file-upload-custom space-x-4" name="Carregar Imagem"
+                        url="https://www.primefaces.org/cdn/api/upload.php" (onUpload)="onUpload($event,'logoSecretaria')" [multiple]="false"
+                        accept="image/*"
+                        chooseLabel="Adicionar" uploadLabel="Enviar" cancelLabel="Cancelar">
+          </p-fileUpload>
+        </div>
+    </div>
+
+    <button
+      pButton
+      label="Cadastrar Escola"
+      class="mt-4"
+      [disabled]="form.invalid"
+      (click)="cadastraEscola()"
+    ></button>
+  </form>
+</p-panel>

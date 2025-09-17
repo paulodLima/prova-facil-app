@@ -81,25 +81,6 @@ export class PerguntasService {
   }
 
   criarPergunta(data: FormData) {
-    for (const pair of data.entries()) {
-      if (pair[0] === "request" && pair[1] instanceof Blob) {
-        const blob = pair[1] as Blob;
-        blob.text().then(json => {
-          console.log("➡️ Request JSON:", JSON.parse(json));
-        });
-      } else if (pair[0] === "arquivo" && pair[1] instanceof File) {
-        const file = pair[1] as File;
-        console.log("➡️ Arquivo:", {
-          nome: file.name,
-          tipo: file.type,
-          tamanho: file.size,
-          ultimoModificado: file.lastModified,
-        });
-      } else {
-        console.log("Outro campo:", pair[0], pair[1]);
-      }
-    }
-
     return this.http.post<any>(`${this.url}/api/perguntas`,data, {headers: this.getUploadHeaders()});
   }
 

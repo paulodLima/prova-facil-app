@@ -14,6 +14,7 @@ export const routes: Routes = [
       { path: 'assunto', loadChildren: () => import('./pages/assunto/assunto.module').then(m => m.AssuntoModule)},
       { path: 'gabarito', loadChildren: () => import('./pages/gabarito/gabarito.module').then(m => m.GabaritoModule)},
       { path: 'prova', loadChildren: () => import('./pages/prova/prova.module').then(m => m.ProvaModule)},
+      { path: 'escola', loadChildren: () => import('./pages/escola/escola.module').then(m => m.EscolaModule)},
     ]
   },
   { path: 'auth', loadChildren: () => import('./pages/auth/auth.routes') },

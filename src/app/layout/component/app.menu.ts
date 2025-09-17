@@ -63,6 +63,11 @@ export class AppMenu {
             routerLink: ['/inicio/prova']
           },
           {
+            label: 'Escola',
+            icon: 'bi bi-building',
+            routerLink: ['/inicio/escola']
+          },
+          {
             label: 'Ler Gabarito',
             icon: 'bi bi-clipboard-check',
             routerLink: ['/inicio/gabarito']
