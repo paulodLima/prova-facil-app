@@ -2,8 +2,8 @@
 <p-confirmDialog/>
 <p-panel header="Gerar Provas" class="text-center sm:text-left">
   <form [formGroup]="form" class="box " enctype="multipart/form-data">
-    <div style="display: flex; justify-content: space-between;">
-      <div class="flex w-1/4 flex-col text-xs" style="display:flex">
+    <div style="display: flex;">
+      <div class="flex w-1/4 flex-col text-xs">
         <label class="mb-1"> Total de Perguntas:</label>
         <p-inputNumber
           formControlName="totalQuestoes"
@@ -52,7 +52,7 @@
       </div>
     </div>
     <div style="display: flex; " class="mt-4">
-      <div class="flex w-1/4 flex-col text-xs ml-2" >
+      <div class="flex w-1/4 flex-col" >
         <label class="mb-1"> Série:</label>
         <p-select  class="inline-grid"
                   [options]="seriesResponse"
@@ -73,7 +73,7 @@
         </p>
       </div>
 
-      <div class="flex w-1/4 flex-col text-xs ml-2">
+      <div class="flex w-1/4 flex-col ml-2">
         <label class="mb-1"> Disciplina:</label>
         <p-select  class="inline-grid"
                   [options]="disciplinas"
@@ -95,7 +95,7 @@
         </p>
       </div>
 
-      <div class="flex w-1/4 flex-col text-xs ml-2">
+      <div class="flex w-1/4 flex-col ml-2">
         <label class="mb-1">Assunto:</label>
         <p-multiselect  class="inline-grid"
                   [options]="assuntoResponse"
@@ -115,7 +115,7 @@
           O campo assunto é obrigatório.
         </p>
       </div>
-      <div class="flex w-1/4 flex-col text-xs ml-2">
+      <div class="flex w-1/4 flex-col ml-2">
         <label class="mb-1">Nota:</label>
         <p-inputNumber
           formControlName="nota"

@@ -4,6 +4,7 @@ export interface PostProfessorRequest {
   senha: string;
   disciplina: string[];
   serie: string[];
+  escola: string;
 }
 
 export interface ResetSenhaRequest {
@@ -18,7 +19,13 @@ export interface Materia {
   codigo: number;
   descricao: string;
 }
+
 export interface Serie {
+  id: number;
+  nome: string;
+}
+
+export interface Escola {
   id: number;
   nome: string;
 }

@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router, RouterModule} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 import {RippleModule} from 'primeng/ripple';
@@ -8,17 +8,21 @@ import {Password} from 'primeng/password';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgxMaskDirective} from 'ngx-mask';
 import {LoginService} from './service/login.service';
-import {Materia, PostProfessorRequest, Serie} from './interface/login.interface';
+import {Escola, Materia, PostProfessorRequest, Serie} from './interface/login.interface';
 import {Toast} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
 import {NgIf} from '@angular/common';
 import {DropdownModule} from 'primeng/dropdown';
 import {MultiSelect} from 'primeng/multiselect';
+import {Tooltip} from 'primeng/tooltip';
+import {SelectItem} from 'primeng/select';
+import {Panel} from 'primeng/panel';
+import {EscolaFormComponent} from '../escola/escola-form/escola-form.component';
 
 @Component({
   selector: 'app-access',
   standalone: true,
-  imports: [ButtonModule, RouterModule, RippleModule, AppFloatingConfigurator, ButtonModule, InputText, Password, ReactiveFormsModule, FormsModule, Toast, NgIf, DropdownModule, MultiSelect],
+  imports: [ButtonModule, RouterModule, RippleModule, AppFloatingConfigurator, ButtonModule, InputText, Password, ReactiveFormsModule, FormsModule, Toast, NgIf, DropdownModule, MultiSelect, Tooltip, SelectItem, Panel, EscolaFormComponent],
   template: `
     <app-floating-configurator/>
     <p-toast></p-toast>
@@ -75,8 +79,36 @@ import {MultiSelect} from 'primeng/multiselect';
               <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Bem Vindo ao Prova Fácil</div>
               <span class="text-muted-color font-medium">Preencha os dados para completar o cadastro</span>
             </div>
-
             <div>
+                <app-escola-form *ngIf="abrirCadastroEscola"
+                  (salvar)="atualizarListaEscolas($event)"
+                  (cancelar)="abrirCadastroEscola = false"
+                                 class="w-full md:w-[40rem]">>
+                </app-escola-form>
+              <div>
+                <label for="escola" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">
+                  Escola
+                </label>
+
+                <p-dropdown
+                  id="escola"
+                  name="escola"
+                  [options]="escolas"
+                  [(ngModel)]="escolaSelecionada"
+                  optionLabel="nome"
+                  #escola="ngModel"
+                  optionValue="id"
+                  placeholder="Selecione a escola que você trabalha"
+                  [filter]="true"
+                  class="w-full md:w-[30rem] mb-2"
+                  required
+                  (onChange)="verificarNovaEscola($event)">
+                </p-dropdown>
+              </div>
+              <div *ngIf="escola.invalid && escola.touched" class="text-red-500 text-sm mb-4">
+                A Escola é obrigatória.
+              </div>
+
               <label for="email1"
                      class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Nome</label>
               <input
@@ -168,7 +200,7 @@ import {MultiSelect} from 'primeng/multiselect';
     </div>`
 })
 
-export class CriarConta {
+export class CriarConta implements OnInit{
   email: string = '';
   nome: string = '';
   senha: string = 'provisorio';
@@ -179,6 +211,9 @@ export class CriarConta {
   materiaSelecionada: string[] = [];
   series: Serie[] = [];
   serieSelecionada: string[] = [];
+  escolas: Escola[] = [];
+  escolaSelecionada: string = '';
+  abrirCadastroEscola: boolean = false;
 
   constructor(private loginService: LoginService, private messageService: MessageService, private router: Router) {
     this.loginService.getDisciplinas().subscribe(value => {
@@ -192,6 +227,16 @@ export class CriarConta {
     }, error => {
       console.log(error)
     })
+
+    this.loginService.getEscolas().subscribe(value => {
+      this.escolas = value;
+      this.escolas = [
+        { id: -1, nome: '➕ Nova Escola' },
+        ...this.escolas
+      ];
+    }, error => {
+      console.log(error)
+    })
   }
 
   cadastrar(): void {
@@ -200,7 +245,8 @@ export class CriarConta {
       nome: this.nome,
       senha: this.senha,
       disciplina: this.materiaSelecionada,
-      serie: this.serieSelecionada
+      serie: this.serieSelecionada,
+      escola: this.escolaSelecionada
     };
     this.loginService.cadastrarProfessorLogin(request).subscribe({
       next: response => {
@@ -234,5 +280,26 @@ export class CriarConta {
   validarSenhas() {
     this.senhasNaoConferem = this.senha !== this.confirmarSenha;
     this.senhaInvalida = !this.senha || this.senha.trim() === '';
+  }
+
+  verificarNovaEscola(event: any) {
+    const selecionados = event.value;
+
+    if (selecionados == -1) {
+      this.abrirCadastroEscola = true;
+      this.escolaSelecionada = "";
+    }
+  }
+  atualizarListaEscolas(novaEscola: any) {
+    this.escolas = [...this.escolas, novaEscola];
+    this.escolaSelecionada = novaEscola.id;
+    console.log(novaEscola)
+    console.log('this.escolaSelecionada',this.escolaSelecionada)
+
+    this.abrirCadastroEscola = false;
+  }
+
+  ngOnInit(): void {
+    this.abrirCadastroEscola = false
   }
 }

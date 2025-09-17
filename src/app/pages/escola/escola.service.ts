@@ -31,6 +31,6 @@ export class EscolaService {
   }
 
   cadastrarEscola(formData: FormData) {
-    return this.http.post<any>(`${this.url}/api/escola`,formData, {headers: this.getUploadHeaders()});
+    return this.http.post<any>(`${this.url}/api/escola`,formData);
   }
 }

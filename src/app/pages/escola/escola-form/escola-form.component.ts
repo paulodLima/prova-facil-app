@@ -1,11 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Toast} from 'primeng/toast';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {Panel} from 'primeng/panel';
 import {InputNumber} from 'primeng/inputnumber';
 import {NgIf} from '@angular/common';
-import {ButtonDirective} from 'primeng/button';
+import {Button, ButtonDirective} from 'primeng/button';
 import {ConfirmationService, MessageService, PrimeTemplate} from 'primeng/api';
 import {PostEscolaRequest, STATE_OPTIONS} from '../escola.interface';
 import {Select} from 'primeng/select';
@@ -37,24 +37,28 @@ import {Router} from '@angular/router';
     InputText,
     NgxMaskDirective,
     FileUpload,
-    Tooltip
+    Tooltip,
+    Button
   ],
-  providers: [ConfirmationService, MessageService,provideNgxMask()],
+  providers: [ConfirmationService, MessageService, provideNgxMask()],
   templateUrl: './escola-form.component.html',
   standalone: true,
   styleUrl: './escola-form.component.scss'
 })
-export class EscolaFormComponent implements OnInit{
+export class EscolaFormComponent implements OnInit {
   form: FormGroup;
   estados = STATE_OPTIONS;
   arquivoRequest: ArquivoRequest[] = [];
+  @Output() salvar = new EventEmitter<any>();
+  @Output() cancelar = new EventEmitter<void>();
 
-  constructor(private fb: FormBuilder, private service: EscolaService, private router: Router, private messageService: MessageService){
-      this.form = this.fb.group({
-        nome: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]],
-        estado: ['', Validators.required],
-      });
+
+  constructor(private fb: FormBuilder, private service: EscolaService, private router: Router, private messageService: MessageService) {
+    this.form = this.fb.group({
+      nome: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      estado: ['', Validators.required],
+    });
   }
 
   ngOnInit(): void {
@@ -72,8 +76,8 @@ export class EscolaFormComponent implements OnInit{
       email: this.form.value.email,
       estado: this.form.value.estado,
     }
-    formData.append("request", new Blob([JSON.stringify(escola)], { type: "application/json" }));
-    this.arquivoRequest.forEach(file => formData.append('arquivos', file.arquivo,file.nomeArquivo));
+    formData.append("request", new Blob([JSON.stringify(escola)], {type: "application/json"}));
+    this.arquivoRequest.forEach(file => formData.append('arquivos', file.arquivo, file.nomeArquivo));
 
     this.service.cadastrarEscola(formData).subscribe({
       next: response => {
@@ -84,7 +88,7 @@ export class EscolaFormComponent implements OnInit{
         });
         this.form.reset
         this.arquivoRequest = []
-        this.router.navigate(['/inicio']);
+        this.salvar.emit(response);
       },
       error: (err: any) => {
         console.log(err)
@@ -94,12 +98,12 @@ export class EscolaFormComponent implements OnInit{
 
   onUpload(event: FileUploadEvent, nome: string) {
     for (let file of event.files) {
-      this.addDocumento(file,nome)
+      this.addDocumento(file, nome)
     }
   }
 
   addDocumento(file: File, nome: string) {
-    const novoFile = new File([file], nome, { type: file.type });
+    const novoFile = new File([file], nome, {type: file.type});
     const arquivo: ArquivoRequest = {
       dataDocumento: new Date(),
       nomeArquivo: nome,
@@ -107,5 +111,7 @@ export class EscolaFormComponent implements OnInit{
     };
     this.arquivoRequest.push(arquivo);
   }
-
+  cancelarCadastro() {
+    this.cancelar.emit();
+  }
 }
