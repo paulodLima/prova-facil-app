@@ -21,7 +21,7 @@ import {Button} from 'primeng/button';
           <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
             <i class="pi pi-bars"></i>
           </button>
-          <a class="layout-topbar-logo" routerLink="/">
+          <a class="layout-topbar-logo" routerLink="/inicio">
             <svg width="60px" height="60px" viewBox="0 0 1024 1024" class="icon" version="1.1"
                  xmlns="http://www.w3.org/2000/svg">
               <path d="M74 183.7h216V918H74z" fill="#55B7A8"/>
@@ -70,6 +70,7 @@ import {Button} from 'primeng/button';
 
         <div class="layout-topbar-actions">
           <div class="layout-config-menu">
+          <label class="text-ls mt-3 font-bold">{{usuario}}</label>
             <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
               <i
                 [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
@@ -118,8 +119,11 @@ import {Button} from 'primeng/button';
 })
 export class AppTopbar {
     items!: MenuItem[];
+    usuario : string = ''
 
-    constructor(public layoutService: LayoutService, private loginService: LoginService) {}
+  constructor(public layoutService: LayoutService, private loginService: LoginService) {
+    this.usuario = `Bem-vindo(a),  ${this.loginService.getUsuarioLogado()}`;
+  }
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));

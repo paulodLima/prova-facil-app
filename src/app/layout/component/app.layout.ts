@@ -25,7 +25,6 @@ import { LayoutService } from '../service/layout.service';
 })
 export class AppLayout {
     overlayMenuOpenSubscription: Subscription;
-
     menuOutsideClickListener: any;
 
     @ViewChild(AppSidebar) appSidebar!: AppSidebar;

@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpResponse} from "@angular/common/http";
+import {HttpClient} from "@angular/common/http";
 import {Observable, take, tap} from "rxjs";
 import {environment} from '../../../../environments/environment';
 import {
@@ -19,38 +19,48 @@ import {Router} from '@angular/router';
 export class LoginService {
   private url = environment.url;
 
-  constructor(private http: HttpClient,private router: Router) {
+  constructor(private http: HttpClient, private router: Router) {
   }
 
   cadastrarProfessorLogin(request: PostProfessorRequest): Observable<void> {
-    return this.http.post<void>(`${this.url}/api/professor`,request).pipe(take(1));
+    return this.http.post<void>(`${this.url}/api/professor`, request).pipe(take(1));
   }
 
   cadastrarSenhaProfessor(request: ResetSenhaRequest, token: any): Observable<void> {
-    return this.http.post<void>(`${this.url}/api/professor/reset/${token}`,request).pipe(take(1));
+    return this.http.post<void>(`${this.url}/api/professor/reset/${token}`, request).pipe(take(1));
   }
 
   getDisciplinas(): Observable<Materia[]> {
     return this.http.get<Materia[]>(`${this.url}/api/disciplina`).pipe(take(1));
   }
+
   getSeries(): Observable<Serie[]> {
     return this.http.get<Serie[]>(`${this.url}/api/serie`).pipe(take(1));
   }
+
   getEscolas(): Observable<Escola[]> {
     return this.http.get<Escola[]>(`${this.url}/api/escola`).pipe(take(1));
   }
 
   loginProfessor(request: LoginRequest): Observable<any> {
-    return this.http.post<any>(`${this.url}/login`,request,{ observe: 'response' }).pipe(
-        tap(response => {
-          const authHeader = response.headers.get('Authorization');
-          if (authHeader?.startsWith('Bearer ')) {
-            const token = authHeader.replace('Bearer ', '');
-            localStorage.setItem('jwt_token', token);
+    return this.http.post<any>(`${this.url}/login`, request, {observe: 'response'}).pipe(
+      tap(response => {
+        const authHeader = response.headers.get('Authorization');
+        if (authHeader?.startsWith('Bearer ')) {
+          const token = authHeader.replace('Bearer ', '');
+          localStorage.setItem('jwt_token', token);
+
+          const body = response.body;
+          if (body) {
+            localStorage.setItem('user_roles', JSON.stringify(body.roles));
+            localStorage.setItem('user_name', body.nome);
+            localStorage.setItem('user_id', body.id);
           }
-        })
-      );
+        }
+      })
+    );
   }
+
   logout() {
     this.router.navigate(['/auth/login'])
     localStorage.removeItem('jwt_token');
@@ -58,5 +68,22 @@ export class LoginService {
 
   getToken(): string | null {
     return localStorage.getItem('jwt_token');
+  }
+
+  getRoles(): string[] {
+    const roles = localStorage.getItem('user_roles');
+    return roles ? JSON.parse(roles) : [];
+  }
+
+  getUsuarioLogado(): string {
+    return localStorage.getItem('user_name') || '';
+  }
+
+  getUserId(): string {
+    return localStorage.getItem('user_id') || '';
+  }
+
+  recuperarSenha(email: string) {
+    return this.http.get<void>(`${this.url}/api/professor/reset/${email}`).pipe(take(1));
   }
 }

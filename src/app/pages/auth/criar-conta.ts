@@ -18,11 +18,12 @@ import {Tooltip} from 'primeng/tooltip';
 import {SelectItem} from 'primeng/select';
 import {Panel} from 'primeng/panel';
 import {EscolaFormComponent} from '../escola/escola-form/escola-form.component';
+import {Dialog} from 'primeng/dialog';
 
 @Component({
   selector: 'app-access',
   standalone: true,
-  imports: [ButtonModule, RouterModule, RippleModule, AppFloatingConfigurator, ButtonModule, InputText, Password, ReactiveFormsModule, FormsModule, Toast, NgIf, DropdownModule, MultiSelect, Tooltip, SelectItem, Panel, EscolaFormComponent],
+  imports: [ButtonModule, RouterModule, RippleModule, AppFloatingConfigurator, ButtonModule, InputText, Password, ReactiveFormsModule, FormsModule, Toast, NgIf, DropdownModule, MultiSelect, Tooltip, SelectItem, Panel, EscolaFormComponent, Dialog],
   template: `
     <app-floating-configurator/>
     <p-toast></p-toast>
@@ -80,11 +81,6 @@ import {EscolaFormComponent} from '../escola/escola-form/escola-form.component';
               <span class="text-muted-color font-medium">Preencha os dados para completar o cadastro</span>
             </div>
             <div>
-                <app-escola-form *ngIf="abrirCadastroEscola"
-                  (salvar)="atualizarListaEscolas($event)"
-                  (cancelar)="abrirCadastroEscola = false"
-                                 class="w-full md:w-[40rem]">>
-                </app-escola-form>
               <div>
                 <label for="escola" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">
                   Escola
@@ -190,14 +186,23 @@ import {EscolaFormComponent} from '../escola/escola-form/escola-form.component';
               </div>
 
               <p-button label="Cadastrar" [outlined]="true" styleClass="w-full mt-5" (onClick)="cadastrar()"
-                        [disabled]="senhasNaoConferem"></p-button>
+                        [disabled]="!email || !nome || !materiaSelecionada || !serieSelecionada || !escolaSelecionada"></p-button>
               <p-button label="Cancelar" [outlined]="true" severity="danger" styleClass="w-full mt-5"
                         (onClick)="Cancelar()"></p-button>
             </div>
           </div>
         </div>
       </div>
-    </div>`
+    </div>
+  <div>
+      <p-dialog [modal]="true" [(visible)]="incluirEscola" [style]="{ width: '70rem' }">
+        <app-escola-form *ngIf="incluirEscola"
+                         (salvar)="atualizarListaEscolas($event)"
+                         (cancelar)="incluirEscola = false"
+                         class="w-full md:w-[40rem]">
+        </app-escola-form>
+      </p-dialog>
+  </div>`
 })
 
 export class CriarConta implements OnInit{
@@ -214,6 +219,7 @@ export class CriarConta implements OnInit{
   escolas: Escola[] = [];
   escolaSelecionada: string = '';
   abrirCadastroEscola: boolean = false;
+  incluirEscola: boolean = false;
 
   constructor(private loginService: LoginService, private messageService: MessageService, private router: Router) {
     this.loginService.getDisciplinas().subscribe(value => {
@@ -240,6 +246,9 @@ export class CriarConta implements OnInit{
   }
 
   cadastrar(): void {
+    if(this.email && this.nome && this.materiaSelecionada && this.serieSelecionada && this.escolaSelecionada) {
+      return
+    }
     const request: PostProfessorRequest = {
       email: this.email,
       nome: this.nome,
@@ -284,18 +293,17 @@ export class CriarConta implements OnInit{
 
   verificarNovaEscola(event: any) {
     const selecionados = event.value;
-
+    this.escolaSelecionada = selecionados;
     if (selecionados == -1) {
       this.abrirCadastroEscola = true;
+      this.incluirEscola = true;
       this.escolaSelecionada = "";
     }
   }
   atualizarListaEscolas(novaEscola: any) {
     this.escolas = [...this.escolas, novaEscola];
     this.escolaSelecionada = novaEscola.id;
-    console.log(novaEscola)
-    console.log('this.escolaSelecionada',this.escolaSelecionada)
-
+    this.incluirEscola = false;
     this.abrirCadastroEscola = false;
   }
 

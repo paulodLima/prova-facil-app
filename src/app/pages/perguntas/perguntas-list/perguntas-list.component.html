@@ -6,13 +6,15 @@
       #dt
       [value]="perguntas"
       [paginator]="true"
-      [globalFilterFields]="['enunciado','assunto.nome','respostaCorreta']"
       [rows]="page?.size || 5"
       [totalRecords]="page?.totalElements || 0"
       [rowsPerPageOptions]="[10, 20, 30]"
       [first]="(page?.number ?? 0) * (page?.size ?? 5)"
+      [lazy]="true"
+      (onLazyLoad)="loadPerguntasLazy($event)"
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+      [globalFilterFields]="['enunciado','assunto.nome','respostaCorreta']"
       responsiveLayout="scroll">
       <ng-template pTemplate="caption">
         <div class="flex">

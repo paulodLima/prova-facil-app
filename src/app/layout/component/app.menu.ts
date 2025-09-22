@@ -1,8 +1,9 @@
 import {Component} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {RouterModule} from '@angular/router';
+import {Router, RouterModule} from '@angular/router';
 import {MenuItem} from 'primeng/api';
 import {AppMenuitem} from './app.menuitem';
+import {LoginService} from '../../pages/auth/service/login.service';
 
 @Component({
   selector: 'app-menu',
@@ -18,8 +19,12 @@ import {AppMenuitem} from './app.menuitem';
 })
 export class AppMenu {
   model: MenuItem[] = [];
+  constructor(private loginService: LoginService, private router: Router) {
+  }
 
   ngOnInit() {
+    const roles = this.loginService.getRoles();
+    const idEscola = localStorage.getItem('user_id');
     this.model = [
       {
         label: 'Menu',
@@ -45,33 +50,44 @@ export class AppMenu {
                 icon: 'bi bi-clipboard-plus',
                 routerLink: ['/inicio/perguntas/novo']
               }
-            ]
+            ],
+            visible: ['ADMIN','USER'].some(r => roles.includes(r))
           },
           {
             label: 'Série',
             icon: 'bi bi-mortarboard',
-            routerLink: ['/inicio/serie']
+            routerLink: ['/inicio/serie'],
+            visible: ['ADMIN','USER'].some(r => roles.includes(r))
           },
           {
             label: 'Assunto',
             icon: 'bi bi-book',
-            routerLink: ['/inicio/assunto']
+            routerLink: ['/inicio/assunto'],
+            visible: ['ADMIN','USER'].some(r => roles.includes(r))
           },
           {
             label: 'Gerar Prova',
             icon: 'bi bi-journal-text',
-            routerLink: ['/inicio/prova']
+            routerLink: ['/inicio/prova'],
+            visible: ['ADMIN','USER'].some(r => roles.includes(r))
           },
           {
             label: 'Escola',
             icon: 'bi bi-building',
-            routerLink: ['/inicio/escola']
+            routerLink: [`/inicio/escola/${idEscola}`],
+            visible: ['ADMIN','ESCOLA'].some(r => roles.includes(r))
           },
           {
+            label: 'Professor',
+            icon: 'bi bi-person',
+            routerLink: ['/inicio/escola'],
+            visible: ['ADMIN','ESCOLA'].some(r => roles.includes(r))
+          },
+         /* {
             label: 'Ler Gabarito',
             icon: 'bi bi-clipboard-check',
             routerLink: ['/inicio/gabarito']
-          }
+          }*/
         ]
       }
     ];

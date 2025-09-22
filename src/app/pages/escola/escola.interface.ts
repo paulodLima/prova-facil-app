@@ -38,3 +38,12 @@ export interface PostEscolaRequest {
   email: string;
   estado: string;
 }
+
+export interface EscolaResponse {
+  id: number;
+  nome: string;
+  email: string;
+  estado: string;
+  logoEscola?: Uint8Array | null;      // ou string (Base64) se o backend converter
+  logoSecretaria?: Uint8Array | null; // idem
+}

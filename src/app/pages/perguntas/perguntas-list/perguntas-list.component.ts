@@ -49,7 +49,7 @@ export class PerguntasListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.perguntasService.getPeguntas().subscribe(page => {
+    this.perguntasService.getPeguntas(0,20).subscribe(page => {
       this.page = page;
       this.perguntas = this.page.content ?? [];
     });
@@ -105,4 +105,19 @@ export class PerguntasListComponent implements OnInit {
       this.dt.filterGlobal(inputElement.value, 'contains');
     }
   }
+
+  loadPerguntasLazy(event: any) {
+    const page = event.first / event.rows; // converte para número da página
+    const size = event.rows;
+    this.perguntasService.getPeguntas(page, size).subscribe({
+      next: (res) => {
+        this.perguntas = res.content;
+        this.page = res;
+      },
+      error: (err) => {
+        console.error('Erro ao buscar perguntas', err);
+      }
+    });
+  }
+
 }

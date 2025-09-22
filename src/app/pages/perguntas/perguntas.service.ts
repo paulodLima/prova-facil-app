@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders, HttpResponse} from "@angular/common/http";
+import {HttpClient, HttpHeaders, HttpParams, HttpResponse} from "@angular/common/http";
 import {Observable, take} from "rxjs";
 import {
   AlternativaErradaRequest,
@@ -27,8 +27,16 @@ export class PerguntasService {
     return this.http.get<ValidacaoInclusaoResponse>(`${this.url}/validar-inclusao/${cdCentrus}`);
   }
 
-  getPeguntas(): Observable<Page<PerguntaResponse>> {
-    return this.http.get<Page<PerguntaResponse>>(`${this.url}/api/perguntas`, {headers: this.getHeaders()});
+  getPeguntas(page: number, size: number): Observable<Page<PerguntaResponse>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http.get<Page<PerguntaResponse>>(`${this.url}/perguntas`, {
+      headers: this.getHeaders(),
+      params
+    });
+   // return this.http.get<Page<PerguntaResponse>>(`${this.url}/perguntas?page=${page}&size=${size}`, {headers: this.getHeaders()});
   }
 
   getSeries(): Observable<SerieResponse[]> {
